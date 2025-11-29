@@ -1,0 +1,62 @@
+import os
+from pathlib import Path
+
+from pydantic import BaseModel
+
+
+class Settings(BaseModel):
+    ROOT_DIR: Path = Path(__file__).resolve().parents[2]
+
+    # ----------------------------------------
+    # LLM / Embedding
+    # ----------------------------------------
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+
+    EMBEDDING_PROVIDER: str = os.getenv("EMBEDDING_PROVIDER", "openai")
+    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
+
+    # ----------------------------------------
+    # SQL Database (raw env)
+    # ----------------------------------------
+    DB_DRIVER: str = os.getenv("DB_DRIVER", "sqlite+aiosqlite")
+    DB_NAME: str = os.getenv("DB_NAME", "secondbrain.db")
+    DB_HOST: str = os.getenv("DB_HOST", "localhost")
+    DB_PORT: int = int(os.getenv("DB_PORT", "5432"))
+    DB_USER: str = os.getenv("DB_USER", "postgres")
+    DB_PASSWORD: str = os.getenv("DB_PASSWORD", "")
+    DATABASE_URL: str | None = None
+
+    # ----------------------------------------
+    # Qdrant
+    # ----------------------------------------
+    QDRANT_MODE: str = os.getenv("QDRANT_MODE", "local")
+    QDRANT_PATH: str = os.getenv("QDRANT_PATH", "qdrant_storage")
+    QDRANT_URL: str = os.getenv("QDRANT_URL", "http://localhost:6333")
+
+    QDRANT_LOCAL_PATH: Path | None = None
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        if self.DB_DRIVER.startswith("sqlite"):
+            db_file = self.ROOT_DIR / self.DB_NAME
+            object.__setattr__(self, "DATABASE_URL", f"{self.DB_DRIVER}:///{db_file.as_posix()}")
+        else:
+            object.__setattr__(
+                self,
+                "DATABASE_URL",
+                (
+                    f"{self.DB_DRIVER}://{self.DB_USER}:{self.DB_PASSWORD}"
+                    f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+                ),
+            )
+
+        if self.QDRANT_MODE.lower() == "local":
+            object.__setattr__(
+                self,
+                "QDRANT_LOCAL_PATH",
+                (self.ROOT_DIR / self.QDRANT_PATH).resolve(),
+            )
+
+
+SETTINGS = Settings()
