@@ -1,4 +1,4 @@
-from second_brain.models.knowledge import KnowledgeModel
+from hippobox.models.knowledge import KnowledgeModel
 
 
 def preprocess_content(knowledge: KnowledgeModel) -> str:

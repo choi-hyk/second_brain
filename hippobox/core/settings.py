@@ -19,7 +19,7 @@ class Settings(BaseModel):
     # SQL Database (raw env)
     # ----------------------------------------
     DB_DRIVER: str = os.getenv("DB_DRIVER", "sqlite+aiosqlite")
-    DB_NAME: str = os.getenv("DB_NAME", "secondbrain.db")
+    DB_NAME: str = os.getenv("DB_NAME", "hippobox.db")
     DB_HOST: str = os.getenv("DB_HOST", "localhost")
     DB_PORT: int = int(os.getenv("DB_PORT", "5432"))
     DB_USER: str = os.getenv("DB_USER", "postgres")

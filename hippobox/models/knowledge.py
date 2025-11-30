@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import JSON, Text, select
 from sqlalchemy.orm import Mapped, mapped_column
 
-from second_brain.core.database import Base, get_db
+from hippobox.core.database import Base, get_db
 
 log = logging.getLogger("knowledge")
 

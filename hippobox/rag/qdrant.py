@@ -5,7 +5,7 @@ from qdrant_client import QdrantClient as QClient
 from qdrant_client.http.models import PointStruct
 from qdrant_client.models import models
 
-from second_brain.core.settings import SETTINGS
+from hippobox.core.settings import SETTINGS
 
 log = logging.getLogger("qdrant")
 
@@ -14,7 +14,7 @@ NO_LIMIT = 999999999
 
 class Qdrant:
     def __init__(self):
-        self.prefix = "sb"
+        self.prefix = "hp"
         self.mode = SETTINGS.QDRANT_MODE.lower()
 
         if self.mode == "local":

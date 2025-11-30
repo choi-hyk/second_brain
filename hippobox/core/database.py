@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
-from second_brain.core.settings import SETTINGS
+from hippobox.core.settings import SETTINGS
 
 log = logging.getLogger("database")
 

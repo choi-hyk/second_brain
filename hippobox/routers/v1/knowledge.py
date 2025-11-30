@@ -2,8 +2,8 @@ from enum import Enum
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
-from second_brain.models.knowledge import KnowledgeForm, KnowledgeResponse, KnowledgeUpdate
-from second_brain.services.knowledge import KnowledgeService, get_knowledge_service
+from hippobox.models.knowledge import KnowledgeForm, KnowledgeResponse, KnowledgeUpdate
+from hippobox.services.knowledge import KnowledgeService, get_knowledge_service
 
 router = APIRouter()
 

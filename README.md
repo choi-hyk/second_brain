@@ -1,6 +1,6 @@
-# Second Brain
+# HippoBox
 
-Second Brain is a unified FastAPI + FastAPIMcp for managing a personal knowledge base.
+HippoBox is a unified FastAPI + FastAPIMcp for managing a personal knowledge base.
 It provides CRUD operations for knowledge entries, semantic search powered by embeddings, and MCP tool integration for use in Claude Desktop or other MCP-compatible clients.
 
 ---
@@ -36,13 +36,13 @@ uv sync
 ### macOS / Linux
 
 ```bash
-uv run uvicorn second_brain.server:app --reload
+uv run uvicorn hippobox.server:app --reload
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-uv run uvicorn second_brain.server:app --reload
+uv run uvicorn hippobox.server:app --reload
 ```
 
 ---
@@ -54,7 +54,7 @@ Add the following to your `claude_desktop_config.json`:
 ```json
 {
     "mcpServers": {
-        "second_brain": {
+        "hippobox": {
             "command": "uvx",
             "args": [
                 "mcp-proxy",
@@ -85,7 +85,7 @@ To use this project with Claude Desktop, you must run it through mcp-proxy.
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "second_brain.server:app",
+                "hippobox.server:app",
                 "--host",
                 "0.0.0.0",
                 "--port",

@@ -1,6 +1,6 @@
 from openai import OpenAI
 
-from second_brain.core.settings import SETTINGS
+from hippobox.core.settings import SETTINGS
 
 
 class Embedding:

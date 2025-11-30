@@ -15,7 +15,7 @@ class PrefixFilter(logging.Filter):
 
 LOG_DIR = Path("logs")
 LOG_DIR.mkdir(exist_ok=True)
-LOG_FILE = LOG_DIR / "second_brain.log"
+LOG_FILE = LOG_DIR / "hippobox.log"
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
 LOGGING_CONFIG = {
@@ -23,7 +23,7 @@ LOGGING_CONFIG = {
     "disable_existing_loggers": False,
     "filters": {
         "add_prefix": {
-            "()": "second_brain.core.logging_config.PrefixFilter",
+            "()": "hippobox.core.logging_config.PrefixFilter",
         },
     },
     "formatters": {
@@ -68,7 +68,7 @@ LOGGING_CONFIG = {
             "level": LOG_LEVEL,
             "propagate": False,
         },
-        "second_brain": {
+        "hippobox": {
             "handlers": ["console", "file"],
             "level": LOG_LEVEL,
             "propagate": False,

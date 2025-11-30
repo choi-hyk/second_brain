@@ -4,23 +4,25 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi_mcp import FastApiMCP
 
-from second_brain.core.database import dispose_db, init_db
-from second_brain.core.logging_config import setup_logger
-from second_brain.core.settings import SETTINGS
-from second_brain.rag.embedding import Embedding
-from second_brain.rag.qdrant import Qdrant
-from second_brain.routers.v1 import knowledge
-from second_brain.routers.v1.knowledge import OperationID
+from hippobox.core.database import dispose_db, init_db
+from hippobox.core.logging_config import setup_logger
+from hippobox.core.settings import SETTINGS
+from hippobox.rag.embedding import Embedding
+from hippobox.rag.qdrant import Qdrant
+from hippobox.routers.v1 import knowledge
+from hippobox.routers.v1.knowledge import OperationID
 
-log = logging.getLogger("second_brain")
+log = logging.getLogger("hippobox")
 
 print(
-    "   _____ ______ _____ ____  _   _ _____    ____  _____            _____ _   _ \n"
-    "  / ____|  ____/ ____/ __ \\| \\ | |  __ \\  |  _ \\|  __ \\     /\\   |_   _| \\ | |\n"
-    " | (___ | |__ | |   | |  | |  \\| | |  | | | |_) | |__) |   /  \\    | | |  \\| |\n"
-    "  \\___ \\|  __|| |   | |  | | . ` | |  | | |  _ <|  _  /   / /\\ \\   | | | . ` |\n"
-    "  ____) | |___| |___| |__| | |\\  | |__| | | |_) | | \\ \\  / ____ \\ _| |_| |\\  |\n"
-    " |_____/|______\\_____\\____/|_| \\_|_____/  |____/|_|  \\_\\/_/    \\_\\_____|_| \\_|\n"
+    "  _    _ _                   ____            \n"
+    " | |  | (_)                 |  _ \\           \n"
+    " | |__| |_ _ __  _ __   ___ | |_) | _____  __\n"
+    " |  __  | | '_ \\| '_ \\ / _ \\|  _ < / _ \\/\\/ /\n"
+    " | |  | | | |_) | |_) | (_) | |_) | (_) >  < \n"
+    " |_|  |_|_| .__/| .__/ \\___/|____/ \\___/_/\\_\\\n"
+    "          | |   | |                           \n"
+    "          |_|   |_|                           \n"
 )
 
 
@@ -52,17 +54,17 @@ async def lifespan(app: FastAPI):
         log.error(f"Embedding initialization failed: {e}")
         raise
 
-    log.info("SecondBrain Server Lifespan Startup")
+    log.info("HippoBox Server Lifespan Startup")
     try:
         yield
     finally:
         await dispose_db()
-        log.info("SecondBrain Server Lifespan Shutdown")
+        log.info("HippoBox Server Lifespan Shutdown")
 
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="SecondBrain MCP Server",
+        title="HippoBox MCP Server",
         version="0.1.0",
         description="Unified FastAPI + MCP server for Knowledge Store & RAG",
         lifespan=lifespan,

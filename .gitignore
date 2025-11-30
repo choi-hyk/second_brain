@@ -24,4 +24,4 @@ uv.lock
 .cache/
 
 qdrant_storage/
-secondbrain.db
+hippobox.db

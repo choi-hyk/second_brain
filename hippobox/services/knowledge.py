@@ -2,10 +2,10 @@ import logging
 
 from fastapi import Request
 
-from second_brain.models.knowledge import KnowledgeForm, KnowledgeResponse, Knowledges, KnowledgeUpdate
-from second_brain.rag.embedding import Embedding
-from second_brain.rag.qdrant import Qdrant
-from second_brain.utils.preprocess import preprocess_content
+from hippobox.models.knowledge import KnowledgeForm, KnowledgeResponse, Knowledges, KnowledgeUpdate
+from hippobox.rag.embedding import Embedding
+from hippobox.rag.qdrant import Qdrant
+from hippobox.utils.preprocess import preprocess_content
 
 log = logging.getLogger("knoweldge")
 
