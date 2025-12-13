@@ -1,4 +1,5 @@
 from enum import Enum
+
 from fastapi import status
 
 from hippobox.errors.service import ServiceErrorCode, ServiceException
@@ -32,18 +33,6 @@ class KnowledgeErrorCode(Enum):
     DELETE_FAILED = ServiceErrorCode(
         "DELETE_FAILED",
         "Failed to delete knowledge",
-        status.HTTP_500_INTERNAL_SERVER_ERROR,
-    )
-
-    EMBEDDING_FAILED = ServiceErrorCode(
-        "EMBEDDING_FAILED",
-        "Failed to generate embedding for knowledge",
-        status.HTTP_500_INTERNAL_SERVER_ERROR,
-    )
-
-    QDRANT_FAILED = ServiceErrorCode(
-        "QDRANT_FAILED",
-        "Failed to process Qdrant request for knowledge",
         status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 

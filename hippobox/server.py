@@ -1,7 +1,8 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
 from fastapi_mcp import FastApiMCP
 
 from hippobox.core.database import dispose_db, init_db
@@ -69,6 +70,16 @@ def create_app() -> FastAPI:
         description="Unified FastAPI + MCP server for Knowledge Store & RAG",
         lifespan=lifespan,
     )
+
+    @app.exception_handler(Exception)
+    async def default_handler(request, exc):
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "error": "INTERNAL_ERROR",
+                "message": "An internal server error occurred",
+            },
+        )
 
     app.include_router(
         knowledge.router,

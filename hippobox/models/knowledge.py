@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from pydantic import BaseModel, Field
-from sqlalchemy import JSON, Text, select
+from sqlalchemy import JSON, DateTime, Text, select
 from sqlalchemy.orm import Mapped, mapped_column
 
 from hippobox.core.database import Base, get_db
@@ -18,8 +18,12 @@ class Knowledge(Base):
     title: Mapped[str] = mapped_column(nullable=False, unique=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
 
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
-    updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
 
 
 class KnowledgeModel(BaseModel):
