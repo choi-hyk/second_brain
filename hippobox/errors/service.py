@@ -22,7 +22,10 @@ class ServiceException(Exception):
 def exceptions_to_http(exc: ServiceException) -> HTTPException:
     return HTTPException(
         status_code=exc.code.http_status,
-        detail=exc.message,
+        detail={
+            "error": exc.code.code,
+            "message": exc.message,
+        },
     )
 
 
