@@ -3,7 +3,6 @@
 HippoBox is a unified FastAPI + FastAPIMcp for managing a personal knowledge base.
 It provides CRUD operations for knowledge entries, semantic search powered by embeddings, and MCP tool integration for use in Claude Desktop or other MCP-compatible clients.
 
----
 
 # Quick Start
 
@@ -21,7 +20,6 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 irm https://astral.sh/uv/install.ps1 | iex
 ```
 
----
 
 ## 2. Setup Project
 
@@ -29,7 +27,6 @@ irm https://astral.sh/uv/install.ps1 | iex
 uv sync
 ```
 
----
 
 ## 3. Run Server
 
@@ -45,9 +42,10 @@ uv run uvicorn hippobox.server:app --reload
 uv run uvicorn hippobox.server:app --reload
 ```
 
----
 
-# Using with Claude Desktop
+## MCP settings
+
+### Using with Claude Desktop
 
 Add the following to your `claude_desktop_config.json`:
 
@@ -61,15 +59,28 @@ Add the following to your `claude_desktop_config.json`:
                 "--transport",
                 "streamablehttp",
                 "http://localhost:8000/mcp"
-            ]
+            ],
+            "env": {
+                "API_ACCESS_TOKEN": "<YOUR_ACCESS_TOKEN>"
+            }
         }
     }
 }
 ```
 
-To use this project with Claude Desktop, you must run it through mcp-proxy.
-
----
+### Using with Cursor
+```json
+{
+  "mcpServers": {
+    "hippobox": {
+      "url": "http://localhost:8000/mcp",
+      "headers": {
+         "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+      }
+    }
+  }
+}
+```
 
 ## Vscode Settings
 
