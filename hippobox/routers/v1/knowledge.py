@@ -5,7 +5,9 @@ from fastapi import APIRouter, Depends, Request
 from hippobox.errors.knowledge import KnowledgeException
 from hippobox.errors.service import exceptions_to_http
 from hippobox.models.knowledge import KnowledgeForm, KnowledgeResponse, KnowledgeUpdate
+from hippobox.models.user import UserResponse
 from hippobox.services.knowledge import KnowledgeService, get_knowledge_service
+from hippobox.utils.auth import get_current_user
 
 router = APIRouter()
 
@@ -17,6 +19,8 @@ class OperationID(str, Enum):
     get_knowledge_by_title = "get_knowledge_by_title"
     get_knowledge_by_topic = "get_knowledge_by_topic"
     get_knowledge_by_tag = "get_knowledge_by_tag"
+    update_knowledge = "update_knowledge"
+    delete_knowledge = "delete_knowledge"
 
 
 # -----------------------------
@@ -28,6 +32,7 @@ async def search_knowledge(
     topic: str | None = None,
     tag: str | None = None,
     limit: int = 1,
+    current_user: UserResponse = Depends(get_current_user),
     service: KnowledgeService = Depends(get_knowledge_service),
 ):
     """
@@ -49,6 +54,7 @@ async def search_knowledge(
     """
     try:
         return await service.search(
+            user_id=current_user.id,
             query=query,
             topic=topic,
             tag=tag,
@@ -65,6 +71,7 @@ async def search_knowledge(
 async def create_knowledge(
     request: Request,
     form: KnowledgeForm,
+    current_user: UserResponse = Depends(get_current_user),
     service: KnowledgeService = Depends(get_knowledge_service),
 ):
     """
@@ -84,7 +91,7 @@ async def create_knowledge(
     which is then indexed into Qdrant for similarity search.
     """
     try:
-        return await service.create_knowledge(form)
+        return await service.create_knowledge(current_user.id, form)
     except KnowledgeException as e:
         raise exceptions_to_http(e)
 
@@ -94,6 +101,7 @@ async def create_knowledge(
 # -----------------------------
 @router.get("/list", response_model=list[KnowledgeResponse], operation_id=OperationID.get_knowledge_list)
 async def get_knowledge_list(
+    current_user: UserResponse = Depends(get_current_user),
     service: KnowledgeService = Depends(get_knowledge_service),
 ):
     """
@@ -106,7 +114,7 @@ async def get_knowledge_list(
     Useful for browsing or building UI item lists.
     """
     try:
-        return await service.get_knowledge_list()
+        return await service.get_knowledge_list(current_user.id)
     except KnowledgeException as e:
         raise exceptions_to_http(e)
 
@@ -117,6 +125,7 @@ async def get_knowledge_list(
 @router.get("/{knowledge_id}", response_model=KnowledgeResponse)
 async def get_knowledge(
     knowledge_id: int,
+    current_user: UserResponse = Depends(get_current_user),
     service: KnowledgeService = Depends(get_knowledge_service),
 ):
     """
@@ -132,7 +141,7 @@ async def get_knowledge(
     - MCP tool consumption by ID
     """
     try:
-        return await service.get_knowledge(knowledge_id)
+        return await service.get_knowledge(current_user.id, knowledge_id)
     except KnowledgeException as e:
         raise exceptions_to_http(e)
 
@@ -143,6 +152,7 @@ async def get_knowledge(
 @router.get("/title/{title}", response_model=KnowledgeResponse, operation_id=OperationID.get_knowledge_by_title)
 async def get_knowledge_by_title(
     title: str,
+    current_user: UserResponse = Depends(get_current_user),
     service: KnowledgeService = Depends(get_knowledge_service),
 ):
     """
@@ -153,7 +163,7 @@ async def get_knowledge_by_title(
     - MCP invokes tool with natural language title
     """
     try:
-        return await service.get_by_title(title)
+        return await service.get_by_title(current_user.id, title)
     except KnowledgeException as e:
         raise exceptions_to_http(e)
 
@@ -164,6 +174,7 @@ async def get_knowledge_by_title(
 @router.get("/topic/{topic}", response_model=list[KnowledgeResponse], operation_id=OperationID.get_knowledge_by_topic)
 async def get_by_topic(
     topic: str,
+    current_user: UserResponse = Depends(get_current_user),
     service: KnowledgeService = Depends(get_knowledge_service),
 ):
     """
@@ -176,7 +187,7 @@ async def get_by_topic(
     - 'database'
     """
     try:
-        return await service.get_by_topic(topic)
+        return await service.get_by_topic(current_user.id, topic)
     except KnowledgeException as e:
         raise exceptions_to_http(e)
 
@@ -187,6 +198,7 @@ async def get_by_topic(
 @router.get("/tag/{tag}", response_model=list[KnowledgeResponse], operation_id=OperationID.get_knowledge_by_tag)
 async def get_by_tag(
     tag: str,
+    current_user: UserResponse = Depends(get_current_user),
     service: KnowledgeService = Depends(get_knowledge_service),
 ):
     """
@@ -199,7 +211,7 @@ async def get_by_tag(
     - 'react'
     """
     try:
-        return await service.get_by_tag(tag)
+        return await service.get_by_tag(current_user.id, tag)
     except KnowledgeException as e:
         raise exceptions_to_http(e)
 
@@ -207,10 +219,11 @@ async def get_by_tag(
 # -----------------------------
 # Update
 # -----------------------------
-@router.put("/{knowledge_id}", response_model=KnowledgeResponse)
+@router.put("/{knowledge_id}", response_model=KnowledgeResponse, operation_id=OperationID.update_knowledge)
 async def update_knowledge(
     knowledge_id: int,
     form: KnowledgeUpdate,
+    current_user: UserResponse = Depends(get_current_user),
     service: KnowledgeService = Depends(get_knowledge_service),
 ):
     """
@@ -226,7 +239,7 @@ async def update_knowledge(
     and re-indexed into Qdrant.
     """
     try:
-        return await service.update_knowledge(knowledge_id, form)
+        return await service.update_knowledge(current_user.id, knowledge_id, form)
     except KnowledgeException as e:
         raise exceptions_to_http(e)
 
@@ -234,9 +247,10 @@ async def update_knowledge(
 # -----------------------------
 # Delete
 # -----------------------------
-@router.delete("/{knowledge_id}")
+@router.delete("/{knowledge_id}", operation_id=OperationID.delete_knowledge)
 async def delete_knowledge(
     knowledge_id: int,
+    current_user: UserResponse = Depends(get_current_user),
     service: KnowledgeService = Depends(get_knowledge_service),
 ):
     """
@@ -247,7 +261,7 @@ async def delete_knowledge(
     - Embedding vector from Qdrant index
     """
     try:
-        await service.delete_knowledge(knowledge_id)
+        await service.delete_knowledge(current_user.id, knowledge_id)
         return {"status": "success", "id": knowledge_id}
     except KnowledgeException as e:
         raise exceptions_to_http(e)

@@ -4,12 +4,7 @@ from fastapi import Request
 
 from hippobox.errors.knowledge import KnowledgeErrorCode, KnowledgeException
 from hippobox.errors.service import raise_exception_with_log
-from hippobox.models.knowledge import (
-    KnowledgeForm,
-    KnowledgeResponse,
-    Knowledges,
-    KnowledgeUpdate,
-)
+from hippobox.models.knowledge import KnowledgeForm, KnowledgeResponse, Knowledges, KnowledgeUpdate
 from hippobox.rag.embedding import Embedding
 from hippobox.rag.qdrant import Qdrant
 from hippobox.utils.preprocess import preprocess_content
@@ -26,7 +21,7 @@ class KnowledgeService:
     # Search
     # -------------------------------------------
     async def search(
-        self, query: str, topic: str | None = None, tag: str | None = None, limit: int = 1
+        self, user_id: int, query: str, topic: str | None = None, tag: str | None = None, limit: int = 1
     ) -> list[KnowledgeResponse]:
         vector = self.embedding.embed(query)
         results = self.qdrant.search("knowledge", vector, limit=limit)
@@ -38,7 +33,7 @@ class KnowledgeService:
         knowledges = []
         for kid in ids:
             try:
-                k = await Knowledges.get(kid)
+                k = await Knowledges.get(user_id, kid)
             except Exception as e:
                 log.exception(f"{KnowledgeErrorCode.GET_FAILED.default_message}: {e}")
                 continue
@@ -57,9 +52,9 @@ class KnowledgeService:
     # -------------------------------------------
     # Create
     # -------------------------------------------
-    async def create_knowledge(self, form: KnowledgeForm) -> KnowledgeResponse:
+    async def create_knowledge(self, user_id: int, form: KnowledgeForm) -> KnowledgeResponse:
         try:
-            knowledge = await Knowledges.create(form)
+            knowledge = await Knowledges.create(user_id, form)
         except Exception as e:
             raise_exception_with_log(KnowledgeErrorCode.CREATE_FAILED, e)
 
@@ -84,7 +79,7 @@ class KnowledgeService:
                 ],
             )
         except Exception as e:
-            await Knowledges.delete(knowledge.id)
+            await Knowledges.delete(user_id, knowledge.id)
             raise_exception_with_log(KnowledgeErrorCode.CREATE_FAILED, e)
 
         return KnowledgeResponse.model_validate(knowledge.model_dump())
@@ -92,28 +87,28 @@ class KnowledgeService:
     # -------------------------------------------
     # Get
     # -------------------------------------------
-    async def get_knowledge(self, kid: int) -> KnowledgeResponse:
-        knowledge = await Knowledges.get(kid)
+    async def get_knowledge(self, user_id: int, kid: int) -> KnowledgeResponse:
+        knowledge = await Knowledges.get(user_id, kid)
 
         if knowledge is None:
             raise KnowledgeException(KnowledgeErrorCode.NOT_FOUND)
 
         return KnowledgeResponse.model_validate(knowledge.model_dump())
 
-    async def get_knowledge_list(self) -> list[KnowledgeResponse]:
-        knowledges = await Knowledges.get_list()
+    async def get_knowledge_list(self, user_id: int) -> list[KnowledgeResponse]:
+        knowledges = await Knowledges.get_list(user_id)
         return [KnowledgeResponse.model_validate(k.model_dump()) for k in knowledges]
 
-    async def get_by_topic(self, topic: str) -> list[KnowledgeResponse]:
-        knowledges = await Knowledges.get_by_topic(topic)
+    async def get_by_topic(self, user_id: int, topic: str) -> list[KnowledgeResponse]:
+        knowledges = await Knowledges.get_by_topic(user_id, topic)
         return [KnowledgeResponse.model_validate(k.model_dump()) for k in knowledges]
 
-    async def get_by_tag(self, tag: str) -> list[KnowledgeResponse]:
-        knowledges = await Knowledges.get_by_tag(tag)
+    async def get_by_tag(self, user_id: int, tag: str) -> list[KnowledgeResponse]:
+        knowledges = await Knowledges.get_by_tag(user_id, tag)
         return [KnowledgeResponse.model_validate(k.model_dump()) for k in knowledges]
 
-    async def get_by_title(self, title: str) -> KnowledgeResponse:
-        knowledge = await Knowledges.get_by_title(title)
+    async def get_by_title(self, user_id: int, title: str) -> KnowledgeResponse:
+        knowledge = await Knowledges.get_by_title(user_id, title)
 
         if knowledge is None:
             raise KnowledgeException(KnowledgeErrorCode.NOT_FOUND)
@@ -123,14 +118,14 @@ class KnowledgeService:
     # -------------------------------------------
     # Update
     # -------------------------------------------
-    async def update_knowledge(self, kid: int, form: KnowledgeUpdate) -> KnowledgeResponse:
-        old = await Knowledges.get(kid)
+    async def update_knowledge(self, user_id: int, kid: int, form: KnowledgeUpdate) -> KnowledgeResponse:
+        old = await Knowledges.get(user_id, kid)
 
         if old is None:
             raise KnowledgeException(KnowledgeErrorCode.UPDATE_FAILED)
 
         try:
-            updated = await Knowledges.update(kid, form)
+            updated = await Knowledges.update(user_id, kid, form)
             if updated is None:
                 raise_exception_with_log(KnowledgeErrorCode.UPDATE_FAILED)
 
@@ -152,7 +147,7 @@ class KnowledgeService:
                 ],
             )
         except Exception as e:
-            await Knowledges.update(kid, KnowledgeUpdate(**old.model_dump()))
+            await Knowledges.update(user_id, kid, KnowledgeUpdate(**old.model_dump()))
             raise_exception_with_log(KnowledgeErrorCode.UPDATE_FAILED, e)
 
         return KnowledgeResponse.model_validate(updated.model_dump())
@@ -160,13 +155,13 @@ class KnowledgeService:
     # -------------------------------------------
     # Delete
     # -------------------------------------------
-    async def delete_knowledge(self, kid: int) -> bool:
-        old = await Knowledges.get(kid)
+    async def delete_knowledge(self, user_id: int, kid: int) -> bool:
+        old = await Knowledges.get(user_id, kid)
         if old is None:
             raise KnowledgeException(KnowledgeErrorCode.DELETE_FAILED)
 
         try:
-            deleted = await Knowledges.delete(kid)
+            deleted = await Knowledges.delete(user_id, kid)
             if not deleted:
                 raise KnowledgeException(KnowledgeErrorCode.DELETE_FAILED)
 

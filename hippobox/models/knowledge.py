@@ -12,7 +12,7 @@ class Knowledge(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-    # user_id: Mapped[str] = mapped_column(nullable=False)
+    user_id: Mapped[int] = mapped_column(nullable=False, index=True)
     topic: Mapped[str] = mapped_column(nullable=False)
     tags: Mapped[list[str]] = mapped_column(JSON, default=list)
     title: Mapped[str] = mapped_column(nullable=False, unique=True)
@@ -29,7 +29,7 @@ class Knowledge(Base):
 class KnowledgeModel(BaseModel):
     id: int = Field(..., description="Unique identifier of the knowledge entry")
 
-    # user_id: str = Field(..., description="Owner's user identifier")
+    user_id: int = Field(..., description="Owner's user identifier")
     topic: str = Field(..., description="High-level topic or category of the knowledge")
     tags: list[str] = Field(default_factory=list, description="List of keywords describing the knowledge")
     title: str = Field(..., description="Short title summarizing the knowledge")
@@ -51,7 +51,7 @@ class KnowledgeForm(BaseModel):
 
 class KnowledgeResponse(BaseModel):
     id: int = Field(..., description="Unique identifier of the knowledge entry")
-
+    user_id: int = Field(..., description="Owner's user identifier")
     topic: str = Field(..., description="Topic or category of this knowledge")
     tags: list[str] = Field(default_factory=list, description="Keywords associated with this knowledge")
     title: str = Field(..., description="Title summarizing the content")
@@ -66,9 +66,10 @@ class KnowledgeUpdate(BaseModel):
 
 
 class KnowledgeTable:
-    async def create(self, form: KnowledgeForm) -> KnowledgeModel:
+    async def create(self, user_id: int, form: KnowledgeForm) -> KnowledgeModel:
         async with get_db() as db:
             knowledge = Knowledge(
+                user_id=user_id,
                 **form.model_dump(),
                 created_at=datetime.now(timezone.utc),
                 updated_at=datetime.now(timezone.utc),
@@ -78,39 +79,45 @@ class KnowledgeTable:
             await db.refresh(knowledge)
             return KnowledgeModel.model_validate(knowledge)
 
-    async def get(self, knowledge_id: int) -> KnowledgeModel | None:
+    async def get(self, user_id: int, knowledge_id: int) -> KnowledgeModel | None:
         async with get_db() as db:
-            result = await db.execute(select(Knowledge).where(Knowledge.id == knowledge_id))
+            result = await db.execute(
+                select(Knowledge).where(Knowledge.id == knowledge_id, Knowledge.user_id == user_id)
+            )
             knowledge = result.scalar_one_or_none()
             return KnowledgeModel.model_validate(knowledge) if knowledge else None
 
-    async def get_by_title(self, title: str) -> KnowledgeModel | None:
+    async def get_by_title(self, user_id: int, title: str) -> KnowledgeModel | None:
         async with get_db() as db:
-            result = await db.execute(select(Knowledge).where(Knowledge.title == title))
+            result = await db.execute(select(Knowledge).where(Knowledge.title == title, Knowledge.user_id == user_id))
             knowledge = result.scalar_one_or_none()
             return KnowledgeModel.model_validate(knowledge) if knowledge else None
 
-    async def get_list(self) -> list[KnowledgeModel]:
+    async def get_list(self, user_id: int) -> list[KnowledgeModel]:
         async with get_db() as db:
-            result = await db.execute(select(Knowledge))
+            result = await db.execute(select(Knowledge).where(Knowledge.user_id == user_id))
             knowledges = result.scalars().all()
             return [KnowledgeModel.model_validate(k) for k in knowledges]
 
-    async def get_by_topic(self, topic: str) -> list[KnowledgeModel]:
+    async def get_by_topic(self, user_id: int, topic: str) -> list[KnowledgeModel]:
         async with get_db() as db:
-            result = await db.execute(select(Knowledge).where(Knowledge.topic == topic))
+            result = await db.execute(select(Knowledge).where(Knowledge.topic == topic, Knowledge.user_id == user_id))
             knowledges = result.scalars().all()
             return [KnowledgeModel.model_validate(k) for k in knowledges]
 
-    async def get_by_tag(self, tag: str) -> list[KnowledgeModel]:
+    async def get_by_tag(self, user_id: int, tag: str) -> list[KnowledgeModel]:
         async with get_db() as db:
-            result = await db.execute(select(Knowledge).where(Knowledge.tags.contains([tag])))
+            result = await db.execute(
+                select(Knowledge).where(Knowledge.tags.contains([tag]), Knowledge.user_id == user_id)
+            )
             knowledges = result.scalars().all()
             return [KnowledgeModel.model_validate(k) for k in knowledges]
 
-    async def update(self, knowledge_id: int, form: KnowledgeUpdate) -> KnowledgeModel | None:
+    async def update(self, user_id: int, knowledge_id: int, form: KnowledgeUpdate) -> KnowledgeModel | None:
         async with get_db() as db:
-            result = await db.execute(select(Knowledge).where(Knowledge.id == knowledge_id))
+            result = await db.execute(
+                select(Knowledge).where(Knowledge.id == knowledge_id, Knowledge.user_id == user_id)
+            )
             knowledge = result.scalar_one_or_none()
 
             if knowledge is None:
@@ -126,9 +133,11 @@ class KnowledgeTable:
             await db.refresh(knowledge)
             return KnowledgeModel.model_validate(knowledge)
 
-    async def delete(self, knowledge_id: int) -> bool:
+    async def delete(self, user_id: int, knowledge_id: int) -> bool:
         async with get_db() as db:
-            result = await db.execute(select(Knowledge).where(Knowledge.id == knowledge_id))
+            result = await db.execute(
+                select(Knowledge).where(Knowledge.id == knowledge_id, Knowledge.user_id == user_id)
+            )
             knowledge = result.scalar_one_or_none()
 
             if knowledge is None:
@@ -142,6 +151,7 @@ class KnowledgeTable:
         async with get_db() as db:
             restored = Knowledge(
                 id=knowledge.id,
+                user_id=knowledge.user_id,
                 topic=knowledge.topic,
                 tags=knowledge.tags,
                 title=knowledge.title,
