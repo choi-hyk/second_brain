@@ -14,7 +14,6 @@ venv/
 uv.lock
 
 .vscode/
-.codex/
 .idea/
 *.swp
 .DS_Store
