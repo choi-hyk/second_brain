@@ -1,0 +1,35 @@
+{
+    "common": {
+        "fields": {
+            "nameLabel": "이름",
+            "namePlaceholder": "Jane Doe",
+            "emailLabel": "이메일",
+            "emailPlaceholder": "example@example.com",
+            "passwordLabel": "비밀번호",
+            "passwordPlaceholder": "••••••••",
+            "confirmPasswordLabel": "비밀번호 확인",
+            "confirmPasswordPlaceholder": "••••••••"
+        }
+    },
+    "login": {
+        "title": "로그인",
+        "subtitle": "HippoBox로 지식 허브를 동기화하세요",
+        "remember": "로그인 유지",
+        "forgot": "비밀번호 재설정",
+        "signIn": "로그인",
+        "noAccount": "계정이 없으신가요?",
+        "createAccount": "계정 만들기"
+    },
+    "signup": {
+        "title": "계정 만들기",
+        "subtitle": "모든 지식을 한 곳에서 관리해 보세요",
+        "submit": "계정 생성",
+        "backToLogin": "로그인으로 돌아가기"
+    },
+    "forgot": {
+        "title": "비밀번호 재설정",
+        "subtitle": "이메일로 재설정 링크를 보내드릴게요",
+        "submit": "재설정 링크 보내기",
+        "backToLogin": "로그인으로 돌아가기"
+    }
+}

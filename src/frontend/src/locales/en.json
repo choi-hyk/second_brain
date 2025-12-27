@@ -1,0 +1,35 @@
+{
+    "common": {
+        "fields": {
+            "nameLabel": "Name",
+            "namePlaceholder": "Jane Doe",
+            "emailLabel": "Email",
+            "emailPlaceholder": "you@company.com",
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "••••••••",
+            "confirmPasswordLabel": "Confirm password",
+            "confirmPasswordPlaceholder": "••••••••"
+        }
+    },
+    "login": {
+        "title": "Login",
+        "subtitle": "Keep your knowledge hub in sync with HippoBox",
+        "remember": "Remember me",
+        "forgot": "Forgot password?",
+        "signIn": "Sign in",
+        "noAccount": "No account yet?",
+        "createAccount": "Create one"
+    },
+    "signup": {
+        "title": "Create your account",
+        "subtitle": "Start organizing everything in one place",
+        "submit": "Create account",
+        "backToLogin": "Back to sign in"
+    },
+    "forgot": {
+        "title": "Reset your password",
+        "subtitle": "We will send a reset link to your email",
+        "submit": "Send reset link",
+        "backToLogin": "Back to sign in"
+    }
+}
