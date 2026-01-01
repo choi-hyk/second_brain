@@ -9,6 +9,18 @@
             "passwordPlaceholder": "••••••••",
             "confirmPasswordLabel": "비밀번호 확인",
             "confirmPasswordPlaceholder": "••••••••"
+        },
+        "errors": {
+            "invalidEmail": "유효한 이메일 주소를 입력해 주세요.",
+            "requiredEmail": "이메일을 입력해 주세요.",
+            "requiredPassword": "비밀번호를 입력해 주세요.",
+            "invalidPassword": "비밀번호는 8-64자이며 대문자/숫자/특수기호를 포함해야 합니다.",
+            "requiredName": "이름을 입력해 주세요.",
+            "invalidName": "이름은 2-30자이며 한글/영문/숫자와 공백, 점, 밑줄, 하이픈만 사용할 수 있습니다.",
+            "requiredConfirmPassword": "비밀번호 확인을 입력해 주세요.",
+            "passwordMismatch": "비밀번호가 일치하지 않습니다.",
+            "emailExists": "이미 사용 중인 이메일입니다.",
+            "nameExists": "이미 사용 중인 이름입니다."
         }
     },
     "login": {
@@ -16,15 +28,50 @@
         "subtitle": "HippoBox로 지식 허브를 동기화하세요",
         "remember": "로그인 유지",
         "forgot": "비밀번호 재설정",
+        "signingIn": "로그인 중...",
+        "errorFallback": "로그인에 실패했습니다. 다시 시도해 주세요.",
         "signIn": "로그인",
         "noAccount": "계정이 없으신가요?",
         "createAccount": "계정 만들기"
+    },
+    "main": {
+        "title": "HippoBox에 오신 것을 환영합니다",
+        "subtitle": "로그인 완료! 이제 지식을 정리하고 탐색해 보세요.",
+        "primaryAction": "첫 노트 만들기"
     },
     "signup": {
         "title": "계정 만들기",
         "subtitle": "모든 지식을 한 곳에서 관리해 보세요",
         "submit": "계정 생성",
+        "signingUp": "계정 생성 중...",
+        "errorFallback": "회원가입에 실패했습니다. 다시 시도해 주세요.",
+        "rules": {
+            "name": {
+                "length": "2-30자",
+                "charset": "영문/숫자/공백/점/밑줄/하이픈 (한글도 가능)"
+            },
+            "email": {
+                "format": "유효한 이메일 형식"
+            },
+            "password": {
+                "length": "8-64자",
+                "upper": "대문자 1개 이상",
+                "number": "숫자 1개 이상",
+                "symbol": "특수기호 1개 이상",
+                "noSpaces": "공백 없이"
+            },
+            "confirm": {
+                "match": "비밀번호와 일치"
+            }
+        },
         "backToLogin": "로그인으로 돌아가기"
+    },
+    "signupSuccess": {
+        "title": "계정 생성 완료",
+        "subtitle": "다음으로 어떻게 진행할지 선택해 주세요.",
+        "prefill": "이메일을 미리 채워둘게요: {{email}}",
+        "startNow": "바로 시작하기",
+        "goToLogin": "로그인 페이지로 이동"
     },
     "forgot": {
         "title": "비밀번호 재설정",

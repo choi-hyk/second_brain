@@ -2,7 +2,15 @@ from fastapi import APIRouter, Body, Depends, Request
 
 from hippobox.errors.auth import AuthException
 from hippobox.errors.service import exceptions_to_http
-from hippobox.models.user import LoginForm, LoginTokenResponse, SignupForm, TokenRefreshResponse, UserResponse
+from hippobox.models.user import (
+    LoginForm,
+    LoginTokenResponse,
+    PasswordResetConfirm,
+    PasswordResetRequest,
+    SignupForm,
+    TokenRefreshResponse,
+    UserResponse,
+)
 from hippobox.services.auth import AuthService, get_auth_service
 from hippobox.utils.auth import get_current_user
 
@@ -23,19 +31,19 @@ async def signup(
     service: AuthService = Depends(get_auth_service),
 ):
     """
-    Register a new user account.
+        Register a new user account.
 
-    The input should include:
-    - email: Valid email address
-    - password: Raw password (will be hashed)
-    - name: User's display name
+        The input should include:
+        - email: Valid email address
+        - password: Raw password (will be hashed)
+        - name: User's display name
 
-    ### Returns:
+        ### Returns:
+    `
+            user (UserResponse): The successfully created user object (unverified).
 
-        user (UserResponse): The successfully created user object (unverified).
-
-    This endpoint creates a DB entry, hashes the password,
-    and triggers an asynchronous email verification process.
+        This endpoint creates a DB entry, hashes the password,
+        and triggers an asynchronous email verification process.
     """
     try:
         return await service.signup(form)
@@ -166,7 +174,7 @@ async def verify_email(
 # -----------------------------
 @router.post("/password-reset/request")
 async def request_password_reset(
-    email: str = Body(..., embed=True),
+    form: PasswordResetRequest,
     service: AuthService = Depends(get_auth_service),
 ):
     """
@@ -174,7 +182,7 @@ async def request_password_reset(
 
     ### Args:
 
-        email (str): The email address of the account to reset.
+    email (str): The email address of the account to reset.
 
     ### Returns:
 
@@ -183,7 +191,7 @@ async def request_password_reset(
     Generates a password reset token in Redis and simulates sending an email.
     """
     try:
-        await service.request_password_reset(email)
+        await service.request_password_reset(form.email)
         return {"message": "If the email exists, a reset link has been sent."}
     except AuthException as e:
         raise exceptions_to_http(e)
@@ -194,8 +202,7 @@ async def request_password_reset(
 # -----------------------------
 @router.post("/password-reset/confirm")
 async def reset_password(
-    token: str = Body(...),
-    new_password: str = Body(...),
+    form: PasswordResetConfirm,
     service: AuthService = Depends(get_auth_service),
 ):
     """
@@ -203,8 +210,8 @@ async def reset_password(
 
     ### Args:
 
-        token (str): The valid reset token.
-        new_password (str): The new password to set.
+    token (str): The valid reset token.
+    new_password (str): The new password to set.
 
     ### Returns:
 
@@ -214,7 +221,7 @@ async def reset_password(
     updates the database, and deletes the token.
     """
     try:
-        await service.reset_password(token, new_password)
+        await service.reset_password(form.token, form.new_password)
         return {"message": "Password has been reset successfully."}
     except AuthException as e:
         raise exceptions_to_http(e)
