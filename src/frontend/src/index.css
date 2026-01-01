@@ -226,6 +226,21 @@
     .text-link:hover::after {
         transform: scaleX(1);
     }
+
+    .rule-indicator {
+        transition:
+            transform 0.18s ease,
+            box-shadow 0.18s ease;
+    }
+
+    .rule-indicator--valid {
+        animation: rule-pop 220ms ease;
+        box-shadow: 0 6px 14px rgba(16, 185, 129, 0.25);
+    }
+
+    .rule-indicator--invalid {
+        animation: rule-soft 220ms ease;
+    }
 }
 
 @layer utilities {
@@ -262,5 +277,27 @@
     100% {
         opacity: 1;
         transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes rule-pop {
+    0% {
+        transform: scale(0.86);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes rule-soft {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
     }
 }

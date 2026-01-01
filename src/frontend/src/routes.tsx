@@ -12,6 +12,12 @@ const SignupPage = lazy(() =>
 const ForgotPasswordPage = lazy(() =>
     import('./pages/ForgotPasswordPage').then((mod) => ({ default: mod.ForgotPasswordPage })),
 );
+const MainPage = lazy(() =>
+    import('./pages/MainPage').then((mod) => ({ default: mod.MainPage })),
+);
+const SignupSuccessPage = lazy(() =>
+    import('./pages/SignupSuccessPage').then((mod) => ({ default: mod.SignupSuccessPage })),
+);
 
 const normalizeRouterBasename = (value: string): string => {
     const trimmed = value.trim();
@@ -26,7 +32,9 @@ const router = createBrowserRouter(
     createRoutesFromElements(
         <>
             <Route path="/" element={<LoginPage />} />
+            <Route path="/app" element={<MainPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/signup/success" element={<SignupSuccessPage />} />
             <Route path="/forgot" element={<ForgotPasswordPage />} />
         </>,
     ),

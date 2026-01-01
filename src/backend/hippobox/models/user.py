@@ -2,12 +2,22 @@ import logging
 from datetime import datetime, timezone
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import DateTime, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, mapped_column
 
 from hippobox.core.database import Base, get_db
+from hippobox.core.validation import (
+    EMAIL_REGEX,
+    NAME_MAX_LENGTH,
+    NAME_MIN_LENGTH,
+    NAME_REGEX,
+    PASSWORD_MAX_LENGTH,
+    PASSWORD_MIN_LENGTH,
+    PASSWORD_REGEX,
+    is_password_strong,
+)
 from hippobox.errors.auth import AuthErrorCode, AuthException
 
 log = logging.getLogger("user")
@@ -56,14 +66,80 @@ class UserModel(BaseModel):
 
 
 class SignupForm(BaseModel):
-    email: str = Field(..., description="Email address used to register the new user")
-    password: str = Field(..., description="Raw password that will be hashed and stored securely")
-    name: str = Field(..., description="Display name assigned to the new user")
+    email: str = Field(
+        ...,
+        description="Email address used to register the new user",
+        pattern=EMAIL_REGEX,
+    )
+    password: str = Field(
+        ...,
+        description="Raw password that will be hashed and stored securely (8-64 chars, uppercase+digit+symbol, no spaces)",
+        min_length=PASSWORD_MIN_LENGTH,
+        max_length=PASSWORD_MAX_LENGTH,
+        pattern=PASSWORD_REGEX,
+    )
+    name: str = Field(
+        ...,
+        description="Display name assigned to the new user",
+        min_length=NAME_MIN_LENGTH,
+        max_length=NAME_MAX_LENGTH,
+        pattern=NAME_REGEX,
+    )
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        if not is_password_strong(value):
+            raise ValueError("Password must be 8-64 characters and include an uppercase letter, a number, and a symbol.")
+        return value
 
 
 class LoginForm(BaseModel):
-    email: str = Field(..., description="Email used for login")
-    password: str = Field(..., description="Raw password for login")
+    email: str = Field(
+        ...,
+        description="Email used for login",
+        pattern=EMAIL_REGEX,
+    )
+    password: str = Field(
+        ...,
+        description="Raw password for login (8-64 chars, uppercase+digit+symbol, no spaces)",
+        min_length=PASSWORD_MIN_LENGTH,
+        max_length=PASSWORD_MAX_LENGTH,
+        pattern=PASSWORD_REGEX,
+    )
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        if not is_password_strong(value):
+            raise ValueError("Password must be 8-64 characters and include an uppercase letter, a number, and a symbol.")
+        return value
+
+
+class PasswordResetRequest(BaseModel):
+    email: str = Field(
+        ...,
+        description="Email address used to request a password reset",
+        pattern=EMAIL_REGEX,
+    )
+
+
+class PasswordResetConfirm(BaseModel):
+    token: str = Field(..., description="Valid password reset token")
+    new_password: str = Field(
+        ...,
+        description="New password to set (8-64 chars, uppercase+digit+symbol, no spaces)",
+        min_length=PASSWORD_MIN_LENGTH,
+        max_length=PASSWORD_MAX_LENGTH,
+        pattern=PASSWORD_REGEX,
+    )
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_new_password(cls, value: str) -> str:
+        if not is_password_strong(value):
+            raise ValueError("Password must be 8-64 characters and include an uppercase letter, a number, and a symbol.")
+        return value
 
 
 class UserResponse(BaseModel):

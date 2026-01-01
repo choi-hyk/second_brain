@@ -4,11 +4,23 @@
             "nameLabel": "Name",
             "namePlaceholder": "Jane Doe",
             "emailLabel": "Email",
-            "emailPlaceholder": "you@company.com",
+            "emailPlaceholder": "example@example.com",
             "passwordLabel": "Password",
             "passwordPlaceholder": "••••••••",
             "confirmPasswordLabel": "Confirm password",
             "confirmPasswordPlaceholder": "••••••••"
+        },
+        "errors": {
+            "invalidEmail": "Please enter a valid email address.",
+            "requiredEmail": "Email is required.",
+            "requiredPassword": "Password is required.",
+            "invalidPassword": "Password must be 8-64 characters and include an uppercase letter, a number, and a symbol.",
+            "requiredName": "Name is required.",
+            "invalidName": "Name must be 2-30 characters and can include letters, numbers, spaces, dots, underscores, or hyphens.",
+            "requiredConfirmPassword": "Please confirm your password.",
+            "passwordMismatch": "Passwords do not match.",
+            "emailExists": "This email is already in use.",
+            "nameExists": "This name is already in use."
         }
     },
     "login": {
@@ -16,15 +28,50 @@
         "subtitle": "Keep your knowledge hub in sync with HippoBox",
         "remember": "Remember me",
         "forgot": "Forgot password?",
+        "signingIn": "Signing in...",
+        "errorFallback": "Login failed. Please try again.",
         "signIn": "Sign in",
         "noAccount": "No account yet?",
         "createAccount": "Create one"
+    },
+    "main": {
+        "title": "Welcome to HippoBox",
+        "subtitle": "You're signed in. Start organizing and exploring your knowledge.",
+        "primaryAction": "Create your first note"
     },
     "signup": {
         "title": "Create your account",
         "subtitle": "Start organizing everything in one place",
         "submit": "Create account",
+        "signingUp": "Creating account...",
+        "errorFallback": "Signup failed. Please try again.",
+        "rules": {
+            "name": {
+                "length": "2-30 characters",
+                "charset": "Letters/numbers, spaces, dots, underscores, hyphens"
+            },
+            "email": {
+                "format": "Use a valid email format"
+            },
+            "password": {
+                "length": "8-64 characters",
+                "upper": "At least 1 uppercase letter",
+                "number": "At least 1 number",
+                "symbol": "At least 1 symbol",
+                "noSpaces": "No spaces"
+            },
+            "confirm": {
+                "match": "Matches the password"
+            }
+        },
         "backToLogin": "Back to sign in"
+    },
+    "signupSuccess": {
+        "title": "Account created",
+        "subtitle": "Choose how you want to continue.",
+        "prefill": "We can prefill your email: {{email}}",
+        "startNow": "Start now",
+        "goToLogin": "Go to login page"
     },
     "forgot": {
         "title": "Reset your password",
