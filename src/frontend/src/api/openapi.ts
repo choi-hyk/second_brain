@@ -14,17 +14,17 @@ export interface paths {
      * Signup
      * @description Register a new user account.
      *
-     * The input should include:
-     * - email: Valid email address
-     * - password: Raw password (will be hashed)
-     * - name: User's display name
+     *     The input should include:
+     *     - email: Valid email address
+     *     - password: Raw password (will be hashed)
+     *     - name: User's display name
      *
-     * ### Returns:
+     *     ### Returns:
+     * `
+     *         user (UserResponse): The successfully created user object (unverified).
      *
-     *     user (UserResponse): The successfully created user object (unverified).
-     *
-     * This endpoint creates a DB entry, hashes the password,
-     * and triggers an asynchronous email verification process.
+     *     This endpoint creates a DB entry, hashes the password,
+     *     and triggers an asynchronous email verification process.
      */
     post: operations["signup_api_v1_auth_signup_post"];
   };
@@ -480,7 +480,7 @@ export interface components {
       email: string;
       /**
        * Password
-       * @description Raw password for login (8-64 chars, letters+digits, no spaces)
+       * @description Raw password for login (8-64 chars, uppercase+digit+symbol, no spaces)
        */
       password: string;
     };
@@ -514,7 +514,7 @@ export interface components {
       token: string;
       /**
        * New Password
-       * @description New password to set (8-64 chars, letters+digits, no spaces)
+       * @description New password to set (8-64 chars, uppercase+digit+symbol, no spaces)
        */
       new_password: string;
     };
@@ -535,7 +535,7 @@ export interface components {
       email: string;
       /**
        * Password
-       * @description Raw password that will be hashed and stored securely (8-64 chars, letters+digits, no spaces)
+       * @description Raw password that will be hashed (8-64 chars, uppercase+digit+symbol, no spaces)
        */
       password: string;
       /**
@@ -632,17 +632,17 @@ export interface operations {
    * Signup
    * @description Register a new user account.
    *
-   * The input should include:
-   * - email: Valid email address
-   * - password: Raw password (will be hashed)
-   * - name: User's display name
+   *     The input should include:
+   *     - email: Valid email address
+   *     - password: Raw password (will be hashed)
+   *     - name: User's display name
    *
-   * ### Returns:
+   *     ### Returns:
+   * `
+   *         user (UserResponse): The successfully created user object (unverified).
    *
-   *     user (UserResponse): The successfully created user object (unverified).
-   *
-   * This endpoint creates a DB entry, hashes the password,
-   * and triggers an asynchronous email verification process.
+   *     This endpoint creates a DB entry, hashes the password,
+   *     and triggers an asynchronous email verification process.
    */
   signup_api_v1_auth_signup_post: {
     requestBody: {
