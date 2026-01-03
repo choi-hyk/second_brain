@@ -13,7 +13,15 @@ from hippobox.errors.service import raise_exception_with_log
 from hippobox.integrations.resend.emailer import send_password_reset_email, send_verification_email
 from hippobox.models.auth import Auths
 from hippobox.models.credential import Credentials
-from hippobox.models.user import LoginForm, LoginTokenResponse, SignupForm, TokenRefreshResponse, UserResponse, Users
+from hippobox.models.user import (
+    LoginForm,
+    LoginTokenResponse,
+    ProfileUpdateForm,
+    SignupForm,
+    TokenRefreshResponse,
+    UserResponse,
+    Users,
+)
 from hippobox.utils.security import get_password_hash, verify_password
 from hippobox.utils.token import (
     create_access_token,
@@ -169,6 +177,22 @@ class AuthService:
             refresh_token=new_refresh_token,
             token_type="bearer",
         )
+
+    # -------------------------------------------
+    # Profile Update
+    # -------------------------------------------
+    async def update_profile(self, user_id: int, form: ProfileUpdateForm) -> UserResponse:
+        try:
+            updated = await Users.update_profile(user_id, form.name)
+        except AuthException as e:
+            raise e
+        except Exception as e:
+            raise_exception_with_log(AuthErrorCode.UNKNOWN_ERROR, e)
+
+        if updated is None:
+            raise AuthException(AuthErrorCode.USER_NOT_FOUND)
+
+        return UserResponse.model_validate(updated.model_dump())
 
     # -------------------------------------------
     # Email Verification

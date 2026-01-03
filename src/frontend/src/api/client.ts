@@ -1,12 +1,6 @@
 import createClient from 'openapi-fetch';
 
-import {
-    getAccessToken,
-    getRefreshToken,
-    getUserId,
-    setSessionFromRefresh,
-    clearSession,
-} from '../auth/session';
+import { clearSession, getAccessToken, setSessionFromRefresh } from '../auth/session';
 import { API_ORIGIN } from './index';
 import type { paths } from './openapi';
 
@@ -22,39 +16,74 @@ const SKIP_REFRESH_PATHS = new Set<string>([
     '/api/v1/auth/verify-email/resend',
 ]);
 
-let refreshPromise: Promise<string | null> | null = null;
+let refreshPromise: Promise<{ access_token?: string } | null> | null = null;
 
 export const apiClient = createClient<paths>({
     baseUrl: API_ORIGIN,
+    fetch: (request) => {
+        const withCredentials = new Request(request, { credentials: 'include' });
+        return fetch(withCredentials);
+    },
 });
 
-const requestRefresh = async () => {
+export const authedFetch = async (input: RequestInfo | URL, init: RequestInit = {}) => {
+    const headers = new Headers(init.headers);
+    const token = getAccessToken();
+    if (token && !headers.has('Authorization')) {
+        headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    const request = new Request(input, {
+        ...init,
+        headers,
+        credentials: 'include',
+    });
+
+    const response = await fetch(request);
+    if (response.status !== 401) return response;
+    if (request.headers.get(AUTH_RETRY_HEADER) === '1') return response;
+
+    const data = await requestRefresh();
+    const nextToken = data?.access_token;
+    if (!nextToken) return response;
+
+    const retryHeaders = new Headers(request.headers);
+    retryHeaders.set('Authorization', `Bearer ${nextToken}`);
+    retryHeaders.set(AUTH_RETRY_HEADER, '1');
+
+    return fetch(new Request(request, { headers: retryHeaders }));
+};
+
+const refreshAccessToken = async () => {
+    const response = await fetch(`${API_ORIGIN}${REFRESH_PATH}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            [AUTH_RETRY_HEADER]: '1',
+        },
+        credentials: 'include',
+        body: JSON.stringify({}),
+    });
+
+    if (!response.ok) {
+        clearSession();
+        return null;
+    }
+
+    const data = (await response.json().catch(() => null)) as { access_token?: string } | null;
+    if (!data || !data.access_token) {
+        clearSession();
+        return null;
+    }
+
+    setSessionFromRefresh(data);
+    return data;
+};
+
+export const requestRefresh = async () => {
     if (refreshPromise) return refreshPromise;
 
-    refreshPromise = (async () => {
-        const refreshToken = getRefreshToken();
-        const userId = getUserId();
-
-        if (!refreshToken || !userId) {
-            return null;
-        }
-
-        const { data, error } = await apiClient.POST(REFRESH_PATH, {
-            headers: { [AUTH_RETRY_HEADER]: '1' },
-            body: {
-                refresh_token: refreshToken,
-                user_id: userId,
-            },
-        });
-
-        if (error || !data) {
-            clearSession();
-            return null;
-        }
-
-        setSessionFromRefresh(data);
-        return (data as { access_token?: string }).access_token ?? null;
-    })();
+    refreshPromise = refreshAccessToken();
 
     try {
         return await refreshPromise;
@@ -78,7 +107,8 @@ apiClient.use({
         if (schemaPath && SKIP_REFRESH_PATHS.has(schemaPath)) return response;
         if (request.headers.get(AUTH_RETRY_HEADER) === '1') return response;
 
-        const nextToken = await requestRefresh();
+        const data = await requestRefresh();
+        const nextToken = data?.access_token;
         if (!nextToken) return response;
 
         const headers = new Headers(request.headers);

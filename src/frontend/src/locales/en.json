@@ -46,9 +46,70 @@
         "createAccount": "Create one"
     },
     "main": {
-        "title": "Welcome to HippoBox",
+        "title": "Main page",
         "subtitle": "You're signed in. Start organizing and exploring your knowledge.",
         "primaryAction": "Create your first note"
+    },
+    "profileMenu": {
+        "profile": "Profile",
+        "theme": "Theme",
+        "settings": "Settings",
+        "logout": "Logout"
+    },
+    "settings": {
+        "title": "Settings",
+        "sections": {
+            "profile": "Profile",
+            "general": "General",
+            "apiKey": "API KEY"
+        },
+        "profile": {
+            "subtitle": "Manage your profile",
+            "nameLabel": "Name",
+            "emailLabel": "Email",
+            "saveButton": "Save",
+            "nameDuplicate": "This name is already in use.",
+            "nameRequired": "Please enter a name.",
+            "saveFailed": "Failed to save changes."
+        },
+        "general": {
+            "languageLabel": "Language",
+            "languageEnglish": "English",
+            "languageKorean": "Korean",
+            "languageHint": "Choose the language for the app.",
+            "themeLabel": "Theme",
+            "themeLight": "Light",
+            "themeDark": "Dark"
+        },
+        "apiKey": {
+            "nameLabel": "Key name",
+            "createButton": "Generate key",
+            "secretTitle": "Secret key",
+            "secretHint": "Copy and store it now. You will not be able to see it again.",
+            "copyButton": "Copy",
+            "copied": "Copied",
+            "listTitle": "Your API keys",
+            "empty": "No API keys yet",
+            "accessKeyLabel": "Access key:",
+            "statusActive": "Active",
+            "statusInactive": "Inactive",
+            "totalRequests": "Requests",
+            "createdAt": "Created",
+            "lastUsed": "Last used",
+            "loading": "Loading API keys...",
+            "loadFailed": "Failed to load API keys.",
+            "createFailed": "Failed to create API key.",
+            "nameRequired": "Please enter a name.",
+            "deleteButton": "Delete",
+            "deleteConfirm": "Delete this API key?",
+            "deleteFailed": "Failed to delete API key.",
+            "updateFailed": "Failed to update API key.",
+            "deleteTitle": "Delete API key",
+            "deleteDescription": "This action cannot be undone.",
+            "deleteConfirmButton": "Delete",
+            "cancelButton": "Cancel",
+            "closeButton": "Close"
+        }
     },
     "signup": {
         "title": "Create your account",

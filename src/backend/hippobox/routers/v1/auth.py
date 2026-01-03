@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Body, Depends, Request
+from fastapi import APIRouter, Body, Depends, Request, Response
 from fastapi.responses import RedirectResponse
 
 from hippobox.core.email_links import build_verify_email_redirect_url
-from hippobox.errors.auth import AuthException
+from hippobox.errors.auth import AuthErrorCode, AuthException
 from hippobox.errors.service import exceptions_to_http
 from hippobox.models.user import (
     EmailVerificationResend,
@@ -10,12 +10,14 @@ from hippobox.models.user import (
     LoginTokenResponse,
     PasswordResetConfirm,
     PasswordResetRequest,
+    ProfileUpdateForm,
     SignupForm,
     TokenRefreshResponse,
     UserResponse,
 )
 from hippobox.services.auth import AuthService, get_auth_service
 from hippobox.utils.auth import get_current_user
+from hippobox.utils.cookies import clear_refresh_cookies, get_refresh_cookie_value, set_refresh_cookies
 
 router = APIRouter()
 
@@ -23,6 +25,21 @@ router = APIRouter()
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(current_user: UserResponse = Depends(get_current_user)):
     return current_user
+
+
+@router.patch("/me", response_model=UserResponse)
+async def update_profile(
+    form: ProfileUpdateForm,
+    current_user: UserResponse = Depends(get_current_user),
+    service: AuthService = Depends(get_auth_service),
+):
+    """
+    Update the current user's profile.
+    """
+    try:
+        return await service.update_profile(current_user.id, form)
+    except AuthException as e:
+        raise exceptions_to_http(e)
 
 
 # -----------------------------
@@ -60,6 +77,7 @@ async def signup(
 @router.post("/login", response_model=LoginTokenResponse)
 async def login(
     request: Request,
+    response: Response,
     form: LoginForm,
     service: AuthService = Depends(get_auth_service),
 ):
@@ -80,7 +98,9 @@ async def login(
     - Updates last login timestamp.
     """
     try:
-        return await service.login(form, request)
+        token = await service.login(form, request)
+        set_refresh_cookies(response, request, token.refresh_token, token.user.id)
+        return token
     except AuthException as e:
         raise exceptions_to_http(e)
 
@@ -90,6 +110,7 @@ async def login(
 # -----------------------------
 @router.post("/logout")
 async def logout(
+    response: Response,
     current_user: UserResponse = Depends(get_current_user),
     service: AuthService = Depends(get_auth_service),
 ):
@@ -109,6 +130,7 @@ async def logout(
     """
     try:
         await service.logout(current_user.id)
+        clear_refresh_cookies(response)
         return {"message": "Successfully logged out"}
     except AuthException as e:
         raise exceptions_to_http(e)
@@ -119,8 +141,10 @@ async def logout(
 # -----------------------------
 @router.post("/refresh", response_model=TokenRefreshResponse)
 async def refresh_token(
-    refresh_token: str = Body(..., embed=True),
-    user_id: int = Body(..., embed=True),
+    request: Request,
+    response: Response,
+    refresh_token: str | None = Body(None, embed=True),
+    user_id: int | None = Body(None, embed=True),
     service: AuthService = Depends(get_auth_service),
 ):
     """
@@ -138,8 +162,22 @@ async def refresh_token(
     This endpoint implements **Refresh Token Rotation**.
     The old refresh token is invalidated, and a completely new pair is issued.
     """
+    cookie_refresh_token, cookie_user_id = get_refresh_cookie_value(request)
+    refresh_token_value = refresh_token or cookie_refresh_token
+    user_id_value = user_id or cookie_user_id
+
+    if not refresh_token_value or not user_id_value:
+        raise exceptions_to_http(AuthException(AuthErrorCode.INVALID__AUTH_TOKEN))
+
     try:
-        return await service.refresh_access_token(refresh_token, user_id)
+        numeric_user_id = int(user_id_value)
+    except (TypeError, ValueError):
+        raise exceptions_to_http(AuthException(AuthErrorCode.INVALID__AUTH_TOKEN))
+
+    try:
+        token = await service.refresh_access_token(refresh_token_value, numeric_user_id)
+        set_refresh_cookies(response, request, token.refresh_token, numeric_user_id)
+        return token
     except AuthException as e:
         raise exceptions_to_http(e)
 
