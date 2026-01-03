@@ -180,6 +180,16 @@ class TokenRefreshResponse(BaseModel):
     token_type: str = Field("bearer", description="Type of the token (e.g., 'bearer')")
 
 
+class ProfileUpdateForm(BaseModel):
+    name: str = Field(
+        ...,
+        description="Updated display name for the user",
+        min_length=NAME_MIN_LENGTH,
+        max_length=NAME_MAX_LENGTH,
+        pattern=NAME_REGEX,
+    )
+
+
 class UserTable:
     async def create(self, form: dict) -> UserModel:
         async with get_db() as db:
@@ -275,6 +285,34 @@ class UserTable:
             user.updated_at = datetime.now(timezone.utc)
 
             await db.commit()
+            await db.refresh(user)
+            return UserModel.model_validate(user)
+
+    async def update_profile(self, user_id: int, name: str) -> UserModel | None:
+        async with get_db() as db:
+            result = await db.execute(select(User).where(User.id == user_id))
+            user = result.scalar_one_or_none()
+
+            if user is None:
+                return None
+
+            user.name = name
+            user.updated_at = datetime.now(timezone.utc)
+
+            try:
+                await db.commit()
+            except IntegrityError as e:
+                await db.rollback()
+                msg = str(e.orig)
+
+                if "user_name_key" in msg:
+                    raise AuthException(AuthErrorCode.NAME_ALREADY_EXISTS)
+
+                if "user_email_key" in msg:
+                    raise AuthException(AuthErrorCode.EMAIL_ALREADY_EXISTS)
+
+                raise AuthException(AuthErrorCode.CREATE_FAILED, str(e))
+
             await db.refresh(user)
             return UserModel.model_validate(user)
 

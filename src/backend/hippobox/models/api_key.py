@@ -126,7 +126,7 @@ class APIKeyTable:
 
     async def get_by_hash(self, secret_hash: str) -> APIKeyModel | None:
         async with get_db() as db:
-            result = await db.execute(select(APIKey).where(APIKey.secret_hash == secret_hash))
+            result = await db.execute(select(APIKey).where(APIKey.secret_hash == secret_hash, APIKey.is_active))
             api_key = result.scalar_one_or_none()
             return APIKeyModel.model_validate(api_key) if api_key else None
 

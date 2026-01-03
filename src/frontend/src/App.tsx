@@ -5,42 +5,13 @@ import { RouterProvider } from 'react-router-dom';
 import { supportedLanguages, type Language } from './i18n';
 import { LoadingPage } from './pages/LoadingPage';
 import router from './routes';
-
-type Theme = 'light' | 'dark';
-
-const getInitialTheme = (): Theme => {
-    if (typeof window === 'undefined') {
-        return 'light';
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-};
+import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
     const { i18n } = useTranslation();
     const [language, setLanguage] = useState<Language>(() =>
         supportedLanguages.includes(i18n.language as Language) ? (i18n.language as Language) : 'en',
     );
-    const [theme, setTheme] = useState<Theme>(getInitialTheme);
-
-    useEffect(() => {
-        document.documentElement.classList.toggle('dark', theme === 'dark');
-    }, [theme]);
-
-    useEffect(() => {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = (event: MediaQueryListEvent) => {
-            setTheme(event.matches ? 'dark' : 'light');
-        };
-        // Initialize in case the preference changed before effect ran.
-        setTheme(mediaQuery.matches ? 'dark' : 'light');
-        if (mediaQuery.addEventListener) {
-            mediaQuery.addEventListener('change', handleChange);
-            return () => mediaQuery.removeEventListener('change', handleChange);
-        }
-        mediaQuery.addListener(handleChange);
-        return () => mediaQuery.removeListener(handleChange);
-    }, []);
-
     useEffect(() => {
         document.documentElement.lang = language;
         localStorage.setItem('lang', language);
@@ -64,9 +35,11 @@ function App() {
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-            <Suspense fallback={<LoadingPage />}>
-                <RouterProvider router={router} />
-            </Suspense>
+            <ThemeProvider>
+                <Suspense fallback={<LoadingPage />}>
+                    <RouterProvider router={router} />
+                </Suspense>
+            </ThemeProvider>
         </div>
     );
 }

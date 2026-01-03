@@ -1,18 +1,23 @@
 import {
     useMutation,
     useQuery,
+    useQueryClient,
     type UseMutationOptions,
     type UseQueryOptions,
 } from '@tanstack/react-query';
 
-import { apiClient } from '../api/client';
+import { apiClient, authedFetch, requestRefresh } from '../api/client';
+import { API_ORIGIN } from '../api';
+import { clearSession, getAccessToken, setSessionFromLogin } from '../auth/session';
 
 type LoginForm = { email: string; password: string };
 type SignupForm = { email: string; password: string; name: string };
-type RefreshTokenPayload = { refresh_token: string; user_id: number };
 type PasswordResetRequestPayload = { email: string };
 type PasswordResetConfirmPayload = { token: string; new_password: string };
 type EmailVerificationResendPayload = { email: string };
+type UserResponse = { id: number; name: string; email: string };
+type UpdateProfilePayload = { name: string };
+type QueryOptions = Omit<UseQueryOptions<unknown>, 'queryKey' | 'queryFn'>;
 
 const withAuth = (token?: string) =>
     token
@@ -29,11 +34,22 @@ const unwrap = async <T>(promise: Promise<{ data?: T; error?: unknown }>) => {
     return data as T;
 };
 
-export const useLoginMutation = (options?: UseMutationOptions<unknown, unknown, LoginForm>) =>
-    useMutation({
-        mutationFn: (body) => unwrap(apiClient.POST('/api/v1/auth/login', { body })),
+export const useLoginMutation = (options?: UseMutationOptions<unknown, unknown, LoginForm>) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (body: LoginForm) => unwrap(apiClient.POST('/api/v1/auth/login', { body })),
         ...options,
+        onSuccess: (data, variables, onMutateResult, context) => {
+            setSessionFromLogin(data);
+            const user = (data as { user?: UserResponse } | undefined)?.user;
+            if (user) {
+                queryClient.setQueryData(['auth', 'me'], user);
+            }
+            options?.onSuccess?.(data, variables, onMutateResult, context);
+        },
     });
+};
 
 export const useSignupMutation = (options?: UseMutationOptions<unknown, unknown, SignupForm>) =>
     useMutation({
@@ -44,17 +60,24 @@ export const useSignupMutation = (options?: UseMutationOptions<unknown, unknown,
 export const useLogoutMutation = (
     token?: string,
     options?: UseMutationOptions<unknown, unknown, void>,
-) =>
-    useMutation({
-        mutationFn: () => unwrap(apiClient.POST('/api/v1/auth/logout', withAuth(token))),
-        ...options,
-    });
+) => {
+    const queryClient = useQueryClient();
+    const resolvedToken = token ?? getAccessToken() ?? undefined;
 
-export const useRefreshTokenMutation = (
-    options?: UseMutationOptions<unknown, unknown, RefreshTokenPayload>,
-) =>
+    return useMutation({
+        mutationFn: () => unwrap(apiClient.POST('/api/v1/auth/logout', withAuth(resolvedToken))),
+        ...options,
+        onSettled: (data, error, variables, onMutateResult, context) => {
+            clearSession();
+            queryClient.removeQueries({ queryKey: ['auth', 'me'] });
+            options?.onSettled?.(data, error, variables, onMutateResult, context);
+        },
+    });
+};
+
+export const useRefreshTokenMutation = (options?: UseMutationOptions<unknown, unknown, void>) =>
     useMutation({
-        mutationFn: (body) => unwrap(apiClient.POST('/api/v1/auth/refresh', { body })),
+        mutationFn: () => requestRefresh(),
         ...options,
     });
 
@@ -76,7 +99,7 @@ export const useResetPasswordMutation = (
         ...options,
     });
 
-export const useVerifyEmailQuery = (token: string, options?: UseQueryOptions<unknown>) =>
+export const useVerifyEmailQuery = (token: string, options?: QueryOptions) =>
     useQuery({
         queryKey: ['auth', 'verify-email', token],
         queryFn: () =>
@@ -93,15 +116,48 @@ export const useResendVerificationEmailMutation = (
     options?: UseMutationOptions<unknown, unknown, EmailVerificationResendPayload>,
 ) =>
     useMutation({
-        mutationFn: (body) =>
-            unwrap(apiClient.POST('/api/v1/auth/verify-email/resend', { body })),
+        mutationFn: (body) => unwrap(apiClient.POST('/api/v1/auth/verify-email/resend', { body })),
         ...options,
     });
 
-export const useMeQuery = (token?: string, options?: UseQueryOptions<unknown>) =>
-    useQuery({
-        queryKey: ['auth', 'me', token],
-        queryFn: () => unwrap(apiClient.GET('/api/v1/auth/me', withAuth(token))),
-        enabled: !!token,
+export const useMeQuery = (options?: QueryOptions) => {
+    const token = getAccessToken() ?? undefined;
+    const isEnabled = options?.enabled ?? !!token;
+
+    return useQuery({
+        queryKey: ['auth', 'me'],
+        queryFn: () => unwrap(apiClient.GET('/api/v1/auth/me')),
+        enabled: isEnabled,
+        staleTime: 1000 * 60 * 5,
         ...options,
     });
+};
+
+export const useUpdateProfileMutation = (
+    options?: UseMutationOptions<UserResponse, unknown, UpdateProfilePayload>,
+) => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (body: UpdateProfilePayload) => {
+            const response = await authedFetch(`${API_ORIGIN}/api/v1/auth/me`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body),
+            });
+
+            const payload = await response.json().catch(() => null);
+            if (!response.ok) {
+                throw payload?.detail ?? payload ?? { message: 'Failed to update profile.' };
+            }
+            return payload as UserResponse;
+        },
+        ...options,
+        onSuccess: (data, variables, onMutateResult, context) => {
+            queryClient.setQueryData(['auth', 'me'], data);
+            options?.onSuccess?.(data, variables, onMutateResult, context);
+        },
+    });
+};

@@ -239,6 +239,70 @@
         transform: scaleX(1);
     }
 
+    .dropdown-menu :is(button, a) {
+        color: var(--color-text);
+        font-weight: 600;
+        position: relative;
+        transition:
+            color 0.2s ease,
+            opacity 0.2s ease;
+    }
+
+    .dropdown-menu :is(button, a)::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 4px;
+        width: 100%;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--color-accent), rgba(59, 130, 246, 0.6));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease;
+    }
+
+    .dropdown-menu :is(button, a):hover::after {
+        transform: scaleX(1);
+    }
+
+    .dropdown-menu .menu-item {
+        color: var(--color-text);
+        font-weight: 600;
+        position: relative;
+        transition:
+            color 0.2s ease,
+            opacity 0.2s ease;
+    }
+
+    .dropdown-menu .menu-item::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 4px;
+        width: 100%;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--color-accent), rgba(59, 130, 246, 0.6));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease;
+    }
+
+    .dropdown-menu .menu-item:hover::after,
+    .dropdown-menu .menu-item:focus-visible::after {
+        transform: scaleX(1);
+    }
+
+    .dropdown-menu .menu-item > button::after {
+        content: none;
+    }
+
+    .dropdown-menu {
+        transform-origin: top;
+        animation: dropdown-in 180ms ease both;
+    }
+
     .rule-indicator {
         transition:
             transform 0.18s ease,
@@ -315,5 +379,22 @@
     100% {
         transform: scale(1);
         opacity: 1;
+    }
+}
+
+@keyframes dropdown-in {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, -6px, 0) scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dropdown-menu {
+        animation: none;
     }
 }

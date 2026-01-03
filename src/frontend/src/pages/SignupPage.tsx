@@ -225,7 +225,11 @@ export function SignupPage() {
                         />
                         <div className="space-y-2 rounded-xl border border-slate-200/70 bg-white/60 p-3 dark:border-slate-700/60 dark:bg-slate-900/40">
                             {nameRules.map((rule) => (
-                                <RuleItem key={rule.label} label={rule.label} isValid={rule.isValid} />
+                                <RuleItem
+                                    key={rule.label}
+                                    label={rule.label}
+                                    isValid={rule.isValid}
+                                />
                             ))}
                         </div>
                         <Input
@@ -246,7 +250,11 @@ export function SignupPage() {
                         />
                         <div className="space-y-2 rounded-xl border border-slate-200/70 bg-white/60 p-3 dark:border-slate-700/60 dark:bg-slate-900/40">
                             {emailRules.map((rule) => (
-                                <RuleItem key={rule.label} label={rule.label} isValid={rule.isValid} />
+                                <RuleItem
+                                    key={rule.label}
+                                    label={rule.label}
+                                    isValid={rule.isValid}
+                                />
                             ))}
                         </div>
                         <Input
@@ -260,14 +268,21 @@ export function SignupPage() {
                                 setPassword(next);
                                 if (errorKey === 'requiredPassword' && next.trim()) {
                                     setErrorKey('');
-                                } else if (errorKey === 'invalidPassword' && isValidPassword(next)) {
+                                } else if (
+                                    errorKey === 'invalidPassword' &&
+                                    isValidPassword(next)
+                                ) {
                                     setErrorKey('');
                                 }
                             }}
                         />
                         <div className="space-y-2 rounded-xl border border-slate-200/70 bg-white/60 p-3 dark:border-slate-700/60 dark:bg-slate-900/40">
                             {passwordRules.map((rule) => (
-                                <RuleItem key={rule.label} label={rule.label} isValid={rule.isValid} />
+                                <RuleItem
+                                    key={rule.label}
+                                    label={rule.label}
+                                    isValid={rule.isValid}
+                                />
                             ))}
                         </div>
                         <Input
@@ -288,7 +303,11 @@ export function SignupPage() {
                         />
                         <div className="space-y-2 rounded-xl border border-slate-200/70 bg-white/60 p-3 dark:border-slate-700/60 dark:bg-slate-900/40">
                             {confirmRules.map((rule) => (
-                                <RuleItem key={rule.label} label={rule.label} isValid={rule.isValid} />
+                                <RuleItem
+                                    key={rule.label}
+                                    label={rule.label}
+                                    isValid={rule.isValid}
+                                />
                             ))}
                         </div>
 

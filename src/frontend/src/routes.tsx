@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import { createBrowserRouter, createRoutesFromElements, Route } from 'react-router-dom';
 
 import { BASENAME } from './config-constants';
+import { AppLayout } from './layouts/AppLayout';
 import { RootLayout } from './layouts/RootLayout';
 
 const LoginPage = lazy(() =>
@@ -30,6 +31,9 @@ const VerifyEmailFailurePage = lazy(() =>
 const ResetPasswordPage = lazy(() =>
     import('./pages/ResetPasswordPage').then((mod) => ({ default: mod.ResetPasswordPage })),
 );
+const SettingsPage = lazy(() =>
+    import('./pages/SettingsPage').then((mod) => ({ default: mod.SettingsPage })),
+);
 
 const normalizeRouterBasename = (value: string): string => {
     const trimmed = value.trim();
@@ -45,7 +49,14 @@ const router = createBrowserRouter(
         <>
             <Route element={<RootLayout />}>
                 <Route index element={<LoginPage />} handle={{ titleKey: 'login.title' }} />
-                <Route path="app" element={<MainPage />} handle={{ titleKey: 'main.title' }} />
+                <Route element={<AppLayout />}>
+                    <Route path="app" element={<MainPage />} handle={{ titleKey: 'main.title' }} />
+                    <Route
+                        path="app/settings"
+                        element={<SettingsPage />}
+                        handle={{ titleKey: 'settings.title' }}
+                    />
+                </Route>
                 <Route
                     path="signup"
                     element={<SignupPage />}

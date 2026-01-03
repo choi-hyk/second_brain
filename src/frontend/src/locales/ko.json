@@ -46,9 +46,64 @@
         "createAccount": "계정 만들기"
     },
     "main": {
-        "title": "HippoBox에 오신 것을 환영합니다",
+        "title": "메인 페이지",
         "subtitle": "로그인 완료! 이제 지식을 정리하고 탐색해 보세요.",
         "primaryAction": "첫 노트 만들기"
+    },
+    "settings": {
+        "title": "설정",
+        "sections": {
+            "profile": "프로필",
+            "general": "일반",
+            "apiKey": "API KEY"
+        },
+        "profile": {
+            "subtitle": "당신의 프로필을 관리하세요",
+            "nameLabel": "이름",
+            "emailLabel": "이메일",
+            "saveButton": "저장",
+            "nameDuplicate": "해당 이름은 이미 사용중입니다.",
+            "nameRequired": "이름을 입력해주세요.",
+            "saveFailed": "이름 변경에 실패하였습니다."
+        },
+        "general": {
+            "languageLabel": "언어",
+            "languageEnglish": "영어",
+            "languageKorean": "한국어",
+            "languageHint": "사용할 언어를 선택해주세요",
+            "themeLabel": "테마",
+            "themeLight": "라이트",
+            "themeDark": "다크"
+        },
+        "apiKey": {
+            "nameLabel": "키 이름",
+            "createButton": "키 생성",
+            "secretTitle": "비밀 키",
+            "secretHint": "복사 후 저장하세요. 해당 키는 다시 확인이 불가능합니다.",
+            "copyButton": "Copy",
+            "copied": "Copied",
+            "listTitle": "당신의 API 키",
+            "empty": "아직 API Key가 없습니다.",
+            "accessKeyLabel": "Access key:",
+            "statusActive": "Active",
+            "statusInactive": "Inactive",
+            "totalRequests": "요청 횟수",
+            "createdAt": "생성일",
+            "lastUsed": "마지막 사용일",
+            "loading": "API 키 로딩중...",
+            "loadFailed": "API 키 로드에 실패하였습니다.",
+            "createFailed": "API 키 생성에 실패하였습니다.",
+            "nameRequired": "키 이름을 입력해주세요",
+            "deleteButton": "삭제",
+            "deleteConfirm": "해당 API 키를 삭제하시겠습니까?",
+            "deleteFailed": "API 키 삭제에 실패하였습니다.",
+            "updateFailed": "API 키 업데이트에 실패하였습니다.",
+            "deleteTitle": "API 키 삭제",
+            "deleteDescription": "해당 설정은 되돌릴 수 없습니다.",
+            "deleteConfirmButton": "삭제",
+            "cancelButton": "취소",
+            "closeButton": "닫기"
+        }
     },
     "signup": {
         "title": "계정 만들기",
@@ -114,5 +169,11 @@
         "requestNew": "새 링크 요청",
         "backToLogin": "로그인으로 돌아가기",
         "errorFallback": "비밀번호 재설정에 실패했습니다. 다시 시도해 주세요."
+    },
+    "profileMenu": {
+        "profile": "프로필",
+        "theme": "테마",
+        "settings": "설정",
+        "logout": "로그아웃"
     }
 }

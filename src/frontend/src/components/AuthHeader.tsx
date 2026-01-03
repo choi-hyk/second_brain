@@ -1,12 +1,43 @@
-export function AuthHeader() {
+type AuthHeaderProps = {
+    size?: 'sm' | 'md';
+    layout?: 'stacked' | 'inline';
+    showLabel?: boolean;
+    className?: string;
+};
+
+const sizeStyles = {
+    sm: {
+        icon: 'h-10 w-10 rounded-xl',
+        label: 'text-[10px] tracking-[0.3em]',
+    },
+    md: {
+        icon: 'h-16 w-16 rounded-2xl',
+        label: 'text-[11px] tracking-[0.35em]',
+    },
+};
+
+export function AuthHeader({
+    size = 'md',
+    layout = 'stacked',
+    showLabel = true,
+    className,
+}: AuthHeaderProps) {
+    const styles = sizeStyles[size];
+    const wrapperClass =
+        layout === 'inline'
+            ? 'flex items-center gap-3 text-left'
+            : 'flex flex-col items-center gap-3 text-center';
+
     return (
-        <div className="flex flex-col items-center gap-3 text-center">
-            <div className="auth-header-icon flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-200/80 shadow-sm dark:border-slate-700/60">
+        <div className={`${wrapperClass} ${className ?? ''}`.trim()}>
+            <div
+                className={`auth-header-icon flex items-center justify-center border border-slate-200/80 shadow-sm dark:border-slate-700/60 ${styles.icon}`}
+            >
                 <img src="/hippobox.svg" alt="HippoBox" className="h-full w-full object-contain" />
             </div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.35em] text-muted">
-                HippoBox
-            </div>
+            {showLabel ? (
+                <div className={`font-semibold uppercase text-muted ${styles.label}`}>HippoBox</div>
+            ) : null}
         </div>
     );
 }
