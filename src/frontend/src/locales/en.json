@@ -167,6 +167,17 @@
             "content": "Content"
         }
     },
+    "knowledgeEditor": {
+        "title": "Edit knowledge",
+        "subtitle": "Update the title, topic, tags, and content.",
+        "back": "Back to detail",
+        "form": {
+            "saveButton": "Update knowledge",
+            "savingButton": "Updating...",
+            "success": "Updated successfully.",
+            "saveFailed": "Failed to update the knowledge."
+        }
+    },
     "settings": {
         "title": "Settings",
         "sections": {

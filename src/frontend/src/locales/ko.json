@@ -286,5 +286,16 @@
             "updatedAt": "수정일",
             "content": "내용"
         }
+    },
+    "knowledgeEditor": {
+        "title": "지식 편집",
+        "subtitle": "제목, 토픽, 태그, 내용을 수정하세요.",
+        "back": "상세로 돌아가기",
+        "form": {
+            "saveButton": "지식 업데이트",
+            "savingButton": "업데이트 중...",
+            "success": "업데이트 완료!",
+            "saveFailed": "지식 업데이트에 실패했습니다."
+        }
     }
 }

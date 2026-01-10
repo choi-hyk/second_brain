@@ -9,6 +9,7 @@ import { apiClient } from '../api/client';
 import type { components } from '../api/openapi';
 
 type KnowledgeForm = components['schemas']['KnowledgeForm'];
+type KnowledgeUpdate = components['schemas']['KnowledgeUpdate'];
 export type KnowledgeResponse = components['schemas']['KnowledgeResponse'];
 type KnowledgeListOptions = Omit<UseQueryOptions<KnowledgeResponse[]>, 'queryKey' | 'queryFn'>;
 
@@ -31,5 +32,24 @@ export const useKnowledgeListQuery = (options?: KnowledgeListOptions) =>
         queryKey: ['knowledge', 'list'],
         queryFn: () => unwrap(apiClient.GET('/api/v1/knowledge/list')),
         staleTime: 1000 * 30,
+        ...options,
+    });
+
+type UpdateKnowledgePayload = {
+    knowledgeId: number;
+    body: KnowledgeUpdate;
+};
+
+export const useUpdateKnowledgeMutation = (
+    options?: UseMutationOptions<KnowledgeResponse, unknown, UpdateKnowledgePayload>,
+) =>
+    useMutation({
+        mutationFn: ({ knowledgeId, body }) =>
+            unwrap(
+                apiClient.PUT('/api/v1/knowledge/{knowledge_id}', {
+                    params: { path: { knowledge_id: knowledgeId } },
+                    body,
+                }),
+            ),
         ...options,
     });
