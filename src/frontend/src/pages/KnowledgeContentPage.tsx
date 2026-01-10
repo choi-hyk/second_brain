@@ -78,12 +78,17 @@ export function KnowledgeContentPage() {
                                 <p className="text-sm text-muted">{entry.topic}</p>
                             </div>
                             <div className="flex shrink-0 items-center gap-2">
-                                <Button type="button" className="h-10 px-4 text-xs">
-                                    <span className="flex items-center gap-2">
-                                        <PencilLine className="h-4 w-4" aria-hidden="true" />
-                                        {t('knowledgeContent.edit')}
-                                    </span>
-                                </Button>
+                                <Link
+                                    to={`/app/knowledge/${entry.id}/edit`}
+                                    className="shrink-0"
+                                >
+                                    <Button type="button" className="h-10 px-4 text-xs">
+                                        <span className="flex items-center gap-2">
+                                            <PencilLine className="h-4 w-4" aria-hidden="true" />
+                                            {t('knowledgeContent.edit')}
+                                        </span>
+                                    </Button>
+                                </Link>
                                 <Link to="/app" className="shrink-0">
                                     <Button
                                         type="button"
