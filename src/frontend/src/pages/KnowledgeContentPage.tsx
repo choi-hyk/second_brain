@@ -107,7 +107,7 @@ export function KnowledgeContentPage() {
                 </Card>
             ) : entry ? (
                 <Card
-                    className="space-y-6 p-8 bg-transparent backdrop-blur-0 shadow-none border-transparent"
+                    className="space-y-6 p-8 bg-transparent backdrop-blur-0 shadow-none border-transparent knowledge-content-card"
                     variant="strong"
                 >
                     <div className="space-y-2">

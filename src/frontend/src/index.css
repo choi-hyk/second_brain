@@ -121,6 +121,12 @@
         border: 1px solid var(--color-border-strong);
     }
 
+    html:not(.dark) .knowledge-content-card {
+        background: transparent;
+        border-color: transparent;
+        box-shadow: none;
+    }
+
     .text-muted {
         color: var(--color-muted);
     }
@@ -143,6 +149,21 @@
     .input-field--ghost {
         background: transparent;
         box-shadow: none;
+    }
+
+    html:not(.dark) .input-field {
+        background: #f8fafc;
+        border-color: rgba(148, 163, 184, 0.5);
+    }
+
+    html:not(.dark) .input-field--ghost {
+        background: transparent;
+        box-shadow: none;
+    }
+
+    html:not(.dark) .knowledge-editor-page .input-field:not(.input-field--ghost) {
+        background: rgba(148, 163, 184, 0.08);
+        border-color: var(--color-border-strong);
     }
 
     .input-field--borderless {
@@ -483,12 +504,12 @@
     .markdown-body code:not([class]) {
         font-family: 'JetBrains Mono', 'SFMono-Regular', 'Menlo', 'Monaco', monospace;
         font-size: 0.85rem;
-        padding: 0.15rem 0.35rem;
-        border-radius: 8px;
-        border: 1px solid var(--color-border);
-        background: var(--color-surface);
+        padding: 0;
+        border-radius: 0;
+        border: none;
+        background: transparent;
         font-weight: 600;
-        margin: 0 0.15rem;
+        margin: 0;
     }
 
     .markdown-body pre {
@@ -496,8 +517,17 @@
         padding: 1rem;
         border-radius: 16px;
         border: 1px solid var(--color-border);
-        background: #0f172a;
+        background: #f8fafc;
         overflow: auto;
+    }
+
+    html.dark .markdown-body pre {
+        background: #0f172a;
+    }
+
+    html:not(.dark) .markdown-body pre .hljs {
+        background: transparent;
+        color: var(--color-text);
     }
 
     .markdown-body pre code {

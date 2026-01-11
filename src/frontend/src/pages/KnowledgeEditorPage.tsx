@@ -394,7 +394,7 @@ export function KnowledgeEditorPage() {
     const lineNumbers = Array.from({ length: lineCount }, (_, index) => index + 1);
 
     return (
-        <div className="w-full space-y-10">
+        <div className="w-full space-y-10 knowledge-editor-page">
             <Card className="space-y-4 p-8 bg-transparent backdrop-blur-0 shadow-none border-0">
                 <form className="space-y-4" onSubmit={handleSubmit} noValidate>
                     <div className="flex flex-wrap items-start justify-between gap-4">
