@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
     # -----------------------------
@@ -8,13 +8,15 @@ services:
         image: postgres:15-alpine
         container_name: hippobox-postgres
         ports:
-            - "5432:5432"
+            - '5432:5432'
         environment:
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=hippobox_secret
             - POSTGRES_DB=hippobox
         volumes:
             - postgres_data:/var/lib/postgresql/data
+        networks:
+            - hippobox_net
         restart: always
 
     # -----------------------------
@@ -24,10 +26,12 @@ services:
         image: qdrant/qdrant:latest
         container_name: hippobox-qdrant
         ports:
-            - "6333:6333" # API Port
-            - "6334:6334" # gRPC Port
+            - '6333:6333' # API Port
+            - '6334:6334' # gRPC Port
         volumes:
             - qdrant_data:/qdrant/storage
+        networks:
+            - hippobox_net
         restart: always
 
     # -----------------------------
@@ -37,13 +41,64 @@ services:
         image: redis:alpine
         container_name: hippobox-redis
         ports:
-            - "6379:6379"
+            - '6379:6379'
         volumes:
             - redis_data:/data
         command: redis-server --appendonly yes
+        networks:
+            - hippobox_net
+        restart: always
+
+    # -----------------------------
+    # HippoBox API (FastAPI + MCP)
+    # -----------------------------
+    hippobox:
+        image: hippobox:0.1.0
+        container_name: hippobox
+        ports:
+            - '8000:8000'
+        env_file:
+            - ./.env
+        environment:
+            - SWAGGER_ENABLED=${SWAGGER_ENABLED:-false}
+            - FRONTEND_BASE_PATH=${FRONTEND_BASE_PATH:-}
+            - DB_DRIVER=${DB_DRIVER:-postgresql+asyncpg}
+            - DB_NAME=${DB_NAME:-hippobox}
+            - DB_HOST=${DB_HOST:-postgres}
+            - DB_PORT=${DB_PORT:-5432}
+            - DB_USER=${DB_USER:-postgres}
+            - DB_PASSWORD=${DB_PASSWORD:-hippobox_secret}
+            - QDRANT_MODE=docker
+            - QDRANT_URL=${QDRANT_URL:-http://qdrant:6333}
+            - REDIS_HOST=${REDIS_HOST:-redis}
+            - REDIS_PORT=${REDIS_PORT:-6379}
+            - REDIS_DB=${REDIS_DB:-0}
+            - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+            - PUBLIC_APP_URL=${PUBLIC_APP_URL:-}
+            - PUBLIC_API_URL=${PUBLIC_API_URL:-}
+            - RESEND_API_KEY=${RESEND_API_KEY:-}
+            - RESEND_API_BASE_URL=${RESEND_API_BASE_URL:-https://api.resend.com}
+            - EMAIL_FROM=${EMAIL_FROM:-HippoBox <no-reply@hippobox.org>}
+            - EMAIL_REPLY_TO=${EMAIL_REPLY_TO:-}
+            - ADMIN_BOOTSTRAP=${ADMIN_BOOTSTRAP:-false}
+            - ADMIN_EMAIL=${ADMIN_EMAIL:-}
+            - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
+            - ADMIN_NAME=${ADMIN_NAME:-}
+            - ADMIN_VERIFY_EMAIL=${ADMIN_VERIFY_EMAIL:-}
+        depends_on:
+            - postgres
+            - qdrant
+            - redis
+        networks:
+            - hippobox_net
         restart: always
 
 volumes:
     postgres_data:
     qdrant_data:
     redis_data:
+
+networks:
+    hippobox_net:
+        name: hippobox-net
+        driver: bridge
