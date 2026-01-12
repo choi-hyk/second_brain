@@ -28,3 +28,5 @@ hippobox.db
 
 src/frontend/node_modules/
 src/frontend/dist/
+
+src/backend/dist/

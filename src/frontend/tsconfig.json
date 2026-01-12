@@ -5,7 +5,7 @@
         "module": "ESNext",
         "lib": ["ES2022", "DOM", "DOM.Iterable"],
         "jsx": "react-jsx",
-        "types": ["vite/client", "react", "react-dom"],
+        "types": ["vite/client", "react", "react-dom", "node"],
         "skipLibCheck": true,
 
         "moduleResolution": "bundler",
@@ -22,5 +22,5 @@
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true
     },
-    "include": ["src", "src/config-constants.ts"]
+    "include": ["src", "src/config-constants.ts", "vite.config.ts"]
 }

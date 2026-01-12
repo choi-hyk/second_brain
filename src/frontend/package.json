@@ -5,7 +5,8 @@
     "type": "module",
     "scripts": {
         "predev": "npm run generate:api:optional",
-        "dev": "vite",
+        "dev": "vite build --watch",
+        "dev:vite": "vite",
         "prebuild": "npm run generate:api:optional",
         "build": "tsc -b && vite build",
         "preview": "vite preview",
@@ -30,6 +31,7 @@
         "react-router-dom": "^7.1.0"
     },
     "devDependencies": {
+        "@types/node": "^22.19.5",
         "@types/react": "^18.2.79",
         "@types/react-dom": "^18.2.25",
         "@vitejs/plugin-react": "^4.3.4",

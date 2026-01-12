@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi_mcp import FastApiMCP
 
+from hippobox.core.bootstrap_admin import ensure_default_admin_from_settings
 from hippobox.core.database import dispose_db, init_db
 from hippobox.core.logging_config import setup_logger
 from hippobox.core.redis import RedisManager
@@ -14,7 +15,6 @@ from hippobox.rag.embedding import Embedding
 from hippobox.rag.qdrant import Qdrant
 from hippobox.routers.v1 import admin, api_key, auth, knowledge, topic
 from hippobox.routers.v1.knowledge import OperationID
-from hippobox.core.bootstrap_admin import ensure_default_admin_from_settings
 
 log = logging.getLogger("hippobox")
 
@@ -142,11 +142,11 @@ def create_app() -> FastAPI:
         return path or "/"
 
     frontend_base_path = normalize_base_path(SETTINGS.FRONTEND_BASE_PATH)
-    frontend_dist = (SETTINGS.ROOT_DIR.parent / "frontend" / "dist").resolve()
-    if frontend_dist.exists():
+    static_files_dist = (SETTINGS.ROOT_DIR / "dist").resolve()
+    if static_files_dist.exists():
         app.mount(
             frontend_base_path,
-            StaticFiles(directory=frontend_dist, html=True),
+            StaticFiles(directory=static_files_dist, html=True),
             name="frontend",
         )
 
@@ -158,7 +158,7 @@ def create_app() -> FastAPI:
             if frontend_base_path != "/" and not request.url.path.startswith(frontend_base_path):
                 return JSONResponse(status_code=404, content={"detail": "Not Found"})
 
-            index_path = frontend_dist / "index.html"
+            index_path = static_files_dist / "index.html"
             if index_path.exists():
                 return FileResponse(index_path)
             return JSONResponse(status_code=404, content={"detail": "Not Found"})
