@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -50,7 +50,7 @@ const truncateText = (value: string, maxLength: number) => {
     if (value.length <= maxLength) return value;
     const chars = Array.from(value);
     if (chars.length <= maxLength) return value;
-    return `${chars.slice(0, maxLength).join('')}…`;
+    return `${chars.slice(0, maxLength).join('')}...`;
 };
 
 export function KnowledgeSearchCard({ inputId }: KnowledgeSearchCardProps) {
@@ -123,6 +123,12 @@ export function KnowledgeSearchCard({ inputId }: KnowledgeSearchCardProps) {
         });
     };
 
+    const handleTagClick = (event: MouseEvent<HTMLButtonElement>, tag: string) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setQuery(`#${tag}`);
+    };
+
     return (
         <div className="w-full space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
@@ -174,12 +180,14 @@ export function KnowledgeSearchCard({ inputId }: KnowledgeSearchCardProps) {
                                 <div className="flex flex-wrap items-center gap-1">
                                     {item.tags?.length ? (
                                         item.tags.map((tag) => (
-                                            <span
+                                            <button
                                                 key={`${item.id}-${tag}`}
-                                                className="inline-flex items-center rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-2 py-0.5 text-[10px] font-semibold text-[color:var(--color-text)]"
+                                                type="button"
+                                                onClick={(event) => handleTagClick(event, tag)}
+                                                className="inline-flex items-center rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-2 py-0.5 text-[10px] font-semibold text-[color:var(--color-text)] transition hover:border-[color:var(--color-border-strong)]"
                                             >
                                                 #{tag}
-                                            </span>
+                                            </button>
                                         ))
                                     ) : (
                                         <span className="inline-flex items-center rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-2 py-0.5 text-[10px] text-muted">
