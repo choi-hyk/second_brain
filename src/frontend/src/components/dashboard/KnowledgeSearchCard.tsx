@@ -33,6 +33,7 @@ const formatDate = (value: string | undefined) => {
 };
 
 const PREVIEW_LIMIT = 200;
+const NO_TOPIC_KEY = '__no_topic__';
 
 const toPlainText = (markdown: string) => {
     if (!markdown.trim()) return '';
@@ -53,10 +54,17 @@ const truncateText = (value: string, maxLength: number) => {
     return `${chars.slice(0, maxLength).join('')}...`;
 };
 
+type TopicRow = {
+    key: string;
+    label: string;
+    count: number;
+};
+
 export function KnowledgeSearchCard({ inputId }: KnowledgeSearchCardProps) {
     const { t } = useTranslation();
     const { knowledge: knowledgeList = [] } = useKnowledgeList();
     const [query, setQuery] = useState('');
+    const [activeTopic, setActiveTopic] = useState<string | null>(null);
     const [selectedFilters, setSelectedFilters] = useState<Set<SearchFilterKey>>(
         () => new Set(SEARCH_FILTERS.map((filter) => filter.key)),
     );
@@ -71,36 +79,52 @@ export function KnowledgeSearchCard({ inputId }: KnowledgeSearchCardProps) {
 
     const visibleResults = useMemo(() => {
         const trimmed = query.trim();
-        if (!trimmed) return defaultResults;
-        const isTagOnly = trimmed.startsWith('#');
-        const activeFilters =
-            selectedFilters.size === 0
-                ? new Set(SEARCH_FILTERS.map((filter) => filter.key))
-                : selectedFilters;
-        const terms = trimmed
-            .split(/\s+/)
-            .map((term) => term.trim())
-            .filter(Boolean)
-            .map((term) => (isTagOnly ? term.replace(/^#+/, '') : term))
-            .map((term) => term.toLowerCase())
-            .filter(Boolean);
-        if (!terms.length) return defaultResults;
-        return defaultResults.filter((item) => {
-            if (isTagOnly) {
-                const tags = (item.tags ?? []).map((tag) => tag.toLowerCase());
-                return terms.every((term) => tags.some((tag) => tag.includes(term)));
+        let results = defaultResults;
+        if (trimmed) {
+            const isTagOnly = trimmed.startsWith('#');
+            const activeFilters =
+                selectedFilters.size === 0
+                    ? new Set(SEARCH_FILTERS.map((filter) => filter.key))
+                    : selectedFilters;
+            const terms = trimmed
+                .split(/\s+/)
+                .map((term) => term.trim())
+                .filter(Boolean)
+                .map((term) => (isTagOnly ? term.replace(/^#+/, '') : term))
+                .map((term) => term.toLowerCase())
+                .filter(Boolean);
+            if (terms.length) {
+                results = results.filter((item) => {
+                    if (isTagOnly) {
+                        const tags = (item.tags ?? []).map((tag) => tag.toLowerCase());
+                        return terms.every((term) => tags.some((tag) => tag.includes(term)));
+                    }
+                    const fields: string[] = [];
+                    if (activeFilters.has('title')) fields.push(item.title);
+                    if (activeFilters.has('topic')) fields.push(item.topic);
+                    if (activeFilters.has('content')) fields.push(item.content);
+                    if (activeFilters.has('tags')) fields.push(...(item.tags ?? []));
+                    if (activeFilters.has('created_at')) fields.push(item.created_at ?? '');
+                    if (activeFilters.has('updated_at')) fields.push(item.updated_at ?? '');
+                    const haystack = fields.join(' ').toLowerCase();
+                    return terms.every((term) => haystack.includes(term));
+                });
             }
-            const fields: string[] = [];
-            if (activeFilters.has('title')) fields.push(item.title);
-            if (activeFilters.has('topic')) fields.push(item.topic);
-            if (activeFilters.has('content')) fields.push(item.content);
-            if (activeFilters.has('tags')) fields.push(...(item.tags ?? []));
-            if (activeFilters.has('created_at')) fields.push(item.created_at ?? '');
-            if (activeFilters.has('updated_at')) fields.push(item.updated_at ?? '');
-            const haystack = fields.join(' ').toLowerCase();
-            return terms.every((term) => haystack.includes(term));
-        });
-    }, [defaultResults, query, selectedFilters]);
+        }
+
+        if (activeTopic) {
+            results = results.filter((item) => {
+                const raw = item.topic?.trim() ?? '';
+                const normalized = raw.toLowerCase();
+                if (activeTopic === NO_TOPIC_KEY) {
+                    return !normalized || normalized === 'uncategorized';
+                }
+                return normalized === activeTopic;
+            });
+        }
+
+        return results;
+    }, [defaultResults, query, selectedFilters, activeTopic]);
 
     const previewById = useMemo(() => {
         const map = new Map<number, string>();
@@ -110,6 +134,30 @@ export function KnowledgeSearchCard({ inputId }: KnowledgeSearchCardProps) {
         });
         return map;
     }, [defaultResults]);
+
+    const topicRows = useMemo<TopicRow[]>(() => {
+        const rows = new Map<string, TopicRow>();
+        defaultResults.forEach((item) => {
+            const raw = item.topic?.trim() ?? '';
+            const normalized = raw.toLowerCase();
+            const isEmpty = !raw || normalized === 'uncategorized';
+            const key = isEmpty ? NO_TOPIC_KEY : normalized;
+            const label = isEmpty ? t('knowledgeContent.noTopic') : raw;
+            const existing = rows.get(key);
+            if (existing) {
+                existing.count += 1;
+            } else {
+                rows.set(key, { key, label, count: 1 });
+            }
+        });
+
+        return Array.from(rows.values()).sort((a, b) => {
+            if (a.key === NO_TOPIC_KEY && b.key !== NO_TOPIC_KEY) return 1;
+            if (b.key === NO_TOPIC_KEY && a.key !== NO_TOPIC_KEY) return -1;
+            if (b.count !== a.count) return b.count - a.count;
+            return a.label.localeCompare(b.label);
+        });
+    }, [defaultResults, t]);
 
     const handleFilterToggle = (key: SearchFilterKey) => {
         setSelectedFilters((prev) => {
@@ -127,6 +175,11 @@ export function KnowledgeSearchCard({ inputId }: KnowledgeSearchCardProps) {
         event.preventDefault();
         event.stopPropagation();
         setQuery(`#${tag}`);
+    };
+
+    const handleTopicClick = (event: MouseEvent<HTMLButtonElement>, key: string) => {
+        event.preventDefault();
+        setActiveTopic((prev) => (prev === key ? null : key));
     };
 
     return (
@@ -214,6 +267,47 @@ export function KnowledgeSearchCard({ inputId }: KnowledgeSearchCardProps) {
                     <p className="text-sm text-muted">{t('main.search.empty')}</p>
                 )}
             </div>
+            {topicRows.length ? (
+                <aside className="hidden xl:block">
+                    <div
+                        className="rounded-2xl bg-[color:var(--color-surface)]/70 p-4 xl:fixed xl:top-40 xl:w-56"
+                        style={{
+                            left: 'max(1rem, calc(50% - 36rem - 17rem))',
+                        }}
+                    >
+                        <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--color-text)]">
+                            {t('knowledgeContent.meta.topic')}
+                        </div>
+                        <nav className="space-y-2" aria-label={t('knowledgeContent.meta.topic')}>
+                            {topicRows.map((topic) => {
+                                const isActive = activeTopic === topic.key;
+                                return (
+                                    <button
+                                        key={topic.key}
+                                        type="button"
+                                        onClick={(event) => handleTopicClick(event, topic.key)}
+                                        className={[
+                                            'flex w-32 items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-sm transition',
+                                            isActive
+                                                ? 'border-[color:var(--color-border-strong)] bg-[color:var(--color-surface)] text-[color:var(--color-text)]'
+                                                : 'border-transparent text-muted hover:border-[color:var(--color-border)] hover:text-[color:var(--color-text)]',
+                                        ]
+                                            .filter(Boolean)
+                                            .join(' ')}
+                                    >
+                                        <span className="min-w-0 flex-1 truncate">
+                                            {topic.label}
+                                        </span>
+                                        <span className="shrink-0 text-[11px] text-muted">
+                                            {topic.count}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </nav>
+                    </div>
+                </aside>
+            ) : null}
         </div>
     );
 }
