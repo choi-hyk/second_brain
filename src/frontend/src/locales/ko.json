@@ -103,9 +103,9 @@
             "subtitle": "아이디어, 링크, 요약을 한 번에 기록하세요.",
             "form": {
                 "titleLabel": "제목",
-                "titlePlaceholder": "핵심이 드러나는 제목을 입력하세요",
+                "titlePlaceholder": "제목",
                 "topicLabel": "토픽",
-                "topicPlaceholder": "예: 제품, 리서치, 운영",
+                "topicPlaceholder": "토픽",
                 "topicLoading": "토픽 불러오는 중...",
                 "topicEmpty": "아직 토픽이 없습니다.",
                 "topicCreate": "토픽 추가: {{topic}}",

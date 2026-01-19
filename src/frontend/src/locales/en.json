@@ -103,9 +103,9 @@
             "subtitle": "Capture ideas, links, and summaries in one place.",
             "form": {
                 "titleLabel": "Title",
-                "titlePlaceholder": "Give it a clear, specific name",
+                "titlePlaceholder": "Title",
                 "topicLabel": "Topic",
-                "topicPlaceholder": "e.g. Product, Research, Ops",
+                "topicPlaceholder": "Topic",
                 "topicLoading": "Loading topics...",
                 "topicEmpty": "No topics yet.",
                 "topicCreate": "Add topic: {{topic}}",
