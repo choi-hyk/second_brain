@@ -167,11 +167,13 @@ async def refresh_token(
     user_id_value = user_id or cookie_user_id
 
     if not refresh_token_value or not user_id_value:
+        clear_refresh_cookies(response)
         raise exceptions_to_http(AuthException(AuthErrorCode.INVALID__AUTH_TOKEN))
 
     try:
         numeric_user_id = int(user_id_value)
     except (TypeError, ValueError):
+        clear_refresh_cookies(response)
         raise exceptions_to_http(AuthException(AuthErrorCode.INVALID__AUTH_TOKEN))
 
     try:
@@ -179,6 +181,7 @@ async def refresh_token(
         set_refresh_cookies(response, request, token.refresh_token, numeric_user_id)
         return token
     except AuthException as e:
+        clear_refresh_cookies(response)
         raise exceptions_to_http(e)
 
 

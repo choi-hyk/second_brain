@@ -1,6 +1,7 @@
 import createClient from 'openapi-fetch';
 
 import { clearSession, getAccessToken, setSessionFromRefresh } from '../auth/session';
+import { BASENAME } from '../config-constants';
 import { API_ORIGIN } from './index';
 import type { paths } from './openapi';
 
@@ -17,6 +18,33 @@ const SKIP_REFRESH_PATHS = new Set<string>([
 ]);
 
 let refreshPromise: Promise<{ access_token?: string } | null> | null = null;
+
+const resolveLoginPath = () => {
+    const trimmed = BASENAME.trim();
+    if (!trimmed || trimmed === '/') {
+        return '/';
+    }
+    const withLeading = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    return withLeading.replace(/\/+$/, '') || '/';
+};
+
+const normalizePathname = (value: string) => {
+    if (!value) return '/';
+    const trimmed = value.trim();
+    if (!trimmed || trimmed === '/') return '/';
+    const withLeading = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    return withLeading.replace(/\/+$/, '') || '/';
+};
+
+const handleAuthFailure = () => {
+    clearSession();
+    if (typeof window === 'undefined') return;
+    const loginPath = resolveLoginPath();
+    const currentPath = normalizePathname(window.location.pathname);
+    if (currentPath !== normalizePathname(loginPath)) {
+        window.location.replace(loginPath);
+    }
+};
 
 export const apiClient = createClient<paths>({
     baseUrl: API_ORIGIN,
@@ -66,13 +94,13 @@ const refreshAccessToken = async () => {
     });
 
     if (!response.ok) {
-        clearSession();
+        handleAuthFailure();
         return null;
     }
 
     const data = (await response.json().catch(() => null)) as { access_token?: string } | null;
     if (!data || !data.access_token) {
-        clearSession();
+        handleAuthFailure();
         return null;
     }
 
