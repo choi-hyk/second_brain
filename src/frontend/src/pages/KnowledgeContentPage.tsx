@@ -8,7 +8,7 @@ import { Card } from '../components/Card';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { MarkdownContent } from '../components/MarkdownContent';
-import { useKnowledgeList } from '../contexts/KnowledgeListContext';
+import { useKnowledgeList } from '../context/KnowledgeListContext';
 import { useDeleteKnowledgeMutation, useKnowledgeQuery } from '../hooks/useKnowledge';
 import { extractHeadings } from '../utils/markdown';
 

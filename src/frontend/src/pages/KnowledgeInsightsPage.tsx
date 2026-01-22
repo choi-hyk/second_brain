@@ -4,7 +4,7 @@ import { BarChart3 } from 'lucide-react';
 
 import { ActivityChartCard } from '../components/dashboard/ActivityChartCard';
 import { TopicSummaryCard } from '../components/dashboard/TopicSummaryCard';
-import { useKnowledgeList } from '../contexts/KnowledgeListContext';
+import { useKnowledgeList } from '../context/KnowledgeListContext';
 import { useTopicsQuery } from '../hooks/useTopics';
 
 const formatDateKey = (date: Date) => {

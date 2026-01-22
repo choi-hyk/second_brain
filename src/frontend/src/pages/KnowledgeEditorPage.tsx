@@ -9,7 +9,7 @@ import { Dropdown } from '../components/Dropdown';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { Input } from '../components/Input';
 import { MarkdownContent } from '../components/MarkdownContent';
-import { useKnowledgeList } from '../contexts/KnowledgeListContext';
+import { useKnowledgeList } from '../context/KnowledgeListContext';
 import {
     useCreateKnowledgeMutation,
     useKnowledgeQuery,

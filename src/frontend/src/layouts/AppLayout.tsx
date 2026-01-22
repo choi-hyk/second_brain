@@ -10,7 +10,7 @@ import { useMeQuery, useRefreshTokenMutation } from '../hooks/useAuth';
 import { AuthHeader } from '../components/AuthHeader';
 import { ProfileMenu } from '../components/ProfileMenu';
 import { LoadingPage } from '../pages/LoadingPage';
-import { KnowledgeListProvider } from '../contexts/KnowledgeListContext';
+import { KnowledgeListProvider } from '../context/KnowledgeListContext';
 
 const FALLBACK_PROFILE_NAME = 'HippoBox';
 

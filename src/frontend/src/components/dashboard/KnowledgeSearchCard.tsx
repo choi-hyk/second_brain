@@ -4,7 +4,7 @@ import { Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { marked } from 'marked';
 
-import { useKnowledgeList } from '../../contexts/KnowledgeListContext';
+import { useKnowledgeList } from '../../context/KnowledgeListContext';
 import { Input } from '../Input';
 
 type KnowledgeSearchCardProps = {
