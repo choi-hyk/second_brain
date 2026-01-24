@@ -10,6 +10,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { MarkdownContent } from '../components/MarkdownContent';
 import { useKnowledgeList } from '../context/KnowledgeListContext';
 import { useDeleteKnowledgeMutation, useKnowledgeQuery } from '../hooks/useKnowledge';
+import { LoadingPage } from './LoadingPage';
 import { extractHeadings } from '../utils/markdown';
 
 const formatDate = (value: string | undefined) => {
@@ -77,11 +78,7 @@ export function KnowledgeContentPage() {
     });
 
     if (isLoading) {
-        return (
-            <div className="flex min-h-[40vh] items-center justify-center">
-                <span className="badge-chip">{t('knowledgeContent.loading')}</span>
-            </div>
-        );
+        return <LoadingPage variant="content" />;
     }
 
     const handleHeadingClick = (headingId: string) => {

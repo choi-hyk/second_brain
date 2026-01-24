@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { Suspense, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BarChart3, BookPlus, Plug } from 'lucide-react';
 import { Link, Navigate, Outlet } from 'react-router-dom';
@@ -50,21 +50,15 @@ export const AppLayout = () => {
         }
     }, [isRefreshIdle, refreshSession, token]);
 
-    if (!token && isRefreshPending) {
-        return <LoadingPage />;
-    }
-
     if (!token && isRefreshError) {
         return <Navigate to="/" replace />;
-    }
-
-    if (token && isMePending) {
-        return <LoadingPage />;
     }
 
     if (token && isMeError) {
         return <Navigate to="/" replace />;
     }
+
+    const isLoading = (!token && isRefreshPending) || (token && isMePending);
 
     return (
         <Container
@@ -110,7 +104,13 @@ export const AppLayout = () => {
             </nav>
             <KnowledgeListProvider enabled={!!token && !isRefreshPending}>
                 <div className="flex-1">
-                    <Outlet />
+                    {isLoading ? (
+                        <LoadingPage variant="content" />
+                    ) : (
+                        <Suspense fallback={<LoadingPage variant="content" />}>
+                            <Outlet />
+                        </Suspense>
+                    )}
                 </div>
             </KnowledgeListProvider>
         </Container>

@@ -16,6 +16,7 @@ import {
     useUpdateKnowledgeMutation,
 } from '../hooks/useKnowledge';
 import { useCreateTopicMutation, useTopicsQuery } from '../hooks/useTopics';
+import { LoadingPage } from './LoadingPage';
 
 const normalizeTags = (raw: string) =>
     Array.from(
@@ -356,11 +357,7 @@ export function KnowledgeEditorPage() {
     const isLoadError = isEditMode && (isDirectError || (isError && !entry));
 
     if (isLoadingEntry) {
-        return (
-            <div className="flex min-h-[40vh] items-center justify-center">
-                <span className="badge-chip">{t('knowledgeContent.loading')}</span>
-            </div>
-        );
+        return <LoadingPage variant="content" />;
     }
 
     if (isLoadError) {
