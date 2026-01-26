@@ -69,8 +69,7 @@ export function ActivityChartCard({ series, totalCount }: ActivityChartCardProps
         return 4;
     };
 
-    const getLevelClass = (level: number, isToday?: boolean) => {
-        if (isToday) return 'bg-[color:var(--color-accent)] shadow-[0_0_8px_var(--color-accent)]';
+    const getLevelClass = (level: number) => {
         switch (level) {
             case 0:
                 return 'bg-slate-100 dark:bg-slate-800/50';
@@ -139,7 +138,7 @@ export function ActivityChartCard({ series, totalCount }: ActivityChartCardProps
                             return (
                                 <div
                                     key={item.key}
-                                    className={`aspect-square rounded-sm ${getLevelClass(level, item.isToday)} transition-all hover:scale-125 hover:z-10 cursor-pointer ${
+                                    className={`aspect-square rounded-sm ${getLevelClass(level)} transition-all hover:scale-125 hover:z-10 cursor-pointer ${
                                         item.isToday
                                             ? 'ring-2 ring-[color:var(--color-accent)] ring-offset-2 ring-offset-[color:var(--color-surface)]'
                                             : ''
