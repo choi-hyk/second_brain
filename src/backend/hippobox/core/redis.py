@@ -13,14 +13,25 @@ class RedisManager:
     @classmethod
     async def get_client(cls) -> redis.Redis:
         if cls._client is None:
-            log.info(f"Connecting Redis → {SETTINGS.REDIS_URL}")
+            if SETTINGS.REDIS_IN_MEMORY:
+                log.info("Using in-memory Redis (fakeredis).")
+                try:
+                    import fakeredis.aioredis as fakeredis
+                except Exception as e:
+                    log.error(f"fakeredis import failed: {e}")
+                    raise
 
-            client = redis.from_url(
-                SETTINGS.REDIS_URL,
-                encoding="utf-8",
-                decode_responses=True,
-            )
-
+                client = fakeredis.FakeRedis(
+                    encoding="utf-8",
+                    decode_responses=True,
+                )
+            else:
+                log.info(f"Connecting Redis -> {SETTINGS.REDIS_URL}")
+                client = redis.from_url(
+                    SETTINGS.REDIS_URL,
+                    encoding="utf-8",
+                    decode_responses=True,
+                )
             try:
                 await client.ping()
                 log.info("Redis connection established.")
