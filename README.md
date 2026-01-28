@@ -37,14 +37,7 @@ cd src/backend
 uv run uvicorn hippobox.server:app --reload
 ```
 
-### Windows (PowerShell)
-
-```powershell
-cd src/backend
-uv run uvicorn hippobox.server:app --reload
-```
-
-## Frontend
+## 4. Run Frontend
 
 ```bash
 cd src/frontend
@@ -57,7 +50,7 @@ npm run preview # preview the built bundle
 
 ## MCP settings
 
-### Using with Claude Desktop
+### <img src="src/frontend/src/assets/claude.svg" width="25" height="25" style="vertical-align: middle;"> Using with Claude Desktop
 
 Add the following to your `claude_desktop_config.json`:
 
@@ -75,7 +68,9 @@ Add the following to your `claude_desktop_config.json`:
 }
 ```
 
-### Using with Cursor
+### <img src="src/frontend/src/assets/cursor.svg" width="25" height="25" style="vertical-align: middle;"> Using with Cursor
+
+Add the following to your Cursor mcp settings:
 
 ```json
 {
@@ -88,4 +83,22 @@ Add the following to your `claude_desktop_config.json`:
         }
     }
 }
+```
+
+### <img src="src/frontend/src/assets/openai-codex.svg" width="35" height="35" style="vertical-align: middle;"> Using with Codex
+
+Add the following to your `config.toml`:
+
+```toml
+[mcp_servers.hippobox]
+startup_timeout_sec = 30
+command = "uvx"
+args = [
+    "mcp-proxy",
+    "--transport",
+    "streamablehttp",
+    "http://localhost:8000/mcp"
+]
+[mcp_servers.hippobox.env]
+API_ACCESS_TOKEN = "<YOUR_ACCESS_TOKEN>"
 ```
