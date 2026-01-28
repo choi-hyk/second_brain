@@ -50,7 +50,7 @@ npm run preview # preview the built bundle
 
 ## MCP settings
 
-### <img src="src/frontend/src/assets/claude.svg" width="25" height="25" style="vertical-align: middle;"> Using with Claude Desktop
+### <img src="src/frontend/src/assets/claude.svg" width="30" height="30" align="center"> Using with Claude Desktop
 
 Add the following to your `claude_desktop_config.json`:
 
@@ -68,7 +68,7 @@ Add the following to your `claude_desktop_config.json`:
 }
 ```
 
-### <img src="src/frontend/src/assets/cursor.svg" width="25" height="25" style="vertical-align: middle;"> Using with Cursor
+### <img src="src/frontend/src/assets/cursor.svg" width="30" height="30" align="center"> Using with Cursor
 
 Add the following to your Cursor mcp settings:
 
@@ -85,7 +85,7 @@ Add the following to your Cursor mcp settings:
 }
 ```
 
-### <img src="src/frontend/src/assets/openai-codex.svg" width="35" height="35" style="vertical-align: middle;"> Using with Codex
+### <img src="src/frontend/src/assets/openai-codex.svg" width="35" height="35" align="center"> Using with Codex
 
 Add the following to your `config.toml`:
 
